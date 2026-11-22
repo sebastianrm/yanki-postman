@@ -1,0 +1,66 @@
+{
+	"info": {
+		"_postman_id": "8a001001-0001-0015-0000-000000000015",
+		"name": "SET-15 - Wallet E2E",
+		"description": "Flujo integral del wallet digital.\n\n**Naturaleza:** Pruebas end-to-end del wallet: verificación de wallet existente, pagos P2P a destino inexistente y retiros con saldo insuficiente.\n\n**Objetivo:** Validar las operaciones del wallet digital en escenarios de error: P2P a teléfono no registrado y retiro excediendo el saldo.\n\n**Orden de ejecución:** Después de SET-07 (Wallet), ya que requiere un wallet_id válido.\n\n**Referencias:**\n- Script: `pruebas_integrales/run-tests.ps1` (SET-15)\n- Documentación: `pruebas_integrales/SET-15-WALLET-E2E.md`\n- Casos de prueba: CP-156, CP-161, CP-186",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"variable": [
+			{"key": "base_url", "value": "http://localhost:8080", "type": "string"},
+			{"key": "auth_token", "value": "", "type": "string"},
+			{"key": "customer_id", "value": "", "type": "string"},
+			{"key": "account_id", "value": "", "type": "string"},
+			{"key": "card_id", "value": "", "type": "string"},
+			{"key": "credit_id", "value": "", "type": "string"},
+			{"key": "wallet_id", "value": "", "type": "string"}
+		]
+	},
+	"item": [
+		{
+			"name": "PRUEBA-15-01: Wallet verificación - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/wallets/{{wallet_id}}", "host": ["{{base_url}}"], "path": ["api", "wallets", "{{wallet_id}}"]},
+				"description": "Verifica que un wallet existente es recuperable por su ID. Confirma que la creación del wallet fue exitosa.\n\n**Endpoint:** GET /api/wallets/{id}\n**Respuesta esperada:** Status 200 con datos del wallet"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-15-02: Wallet P2P destino inexistente - Negative",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"phoneDestino\": \"+51999000000\",\n    \"amount\": 100.0,\n    \"description\": \"P2P inexistente\"\n}"},
+				"url": {"raw": "{{base_url}}/api/wallets/{{wallet_id}}/payments", "host": ["{{base_url}}"], "path": ["api", "wallets", "{{wallet_id}}", "payments"]},
+				"description": "Intenta enviar dinero P2P a un teléfono que no tiene wallet registrado. El sistema debe detectar que el destino no existe.\n\n**Endpoint:** POST /api/wallets/{id}/payments\n**Body:** phoneDestino no registrado, amount: 100.0\n**Respuesta esperada:** Status 404 — wallet destino no encontrado"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-15-03: Wallet retiro saldo insuficiente - Negative",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"amount\": 999999.0,\n    \"destinationAccountId\": \"000000000000000000000000\"\n}"},
+				"url": {"raw": "{{base_url}}/api/wallets/{{wallet_id}}/withdrawals", "host": ["{{base_url}}"], "path": ["api", "wallets", "{{wallet_id}}", "withdrawals"]},
+				"description": "Intenta retirar un monto muy superior al saldo del wallet. El sistema debe detectar saldo insuficiente.\n\n**Endpoint:** POST /api/wallets/{id}/withdrawals\n**Body:** amount: 999999.0 (monto imposible)\n**Respuesta esperada:** Status 400 o 409 — saldo insuficiente"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 400 or 409\", function () { pm.expect(pm.response.code).to.be.oneOf([400, 409]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		}
+	]
+}

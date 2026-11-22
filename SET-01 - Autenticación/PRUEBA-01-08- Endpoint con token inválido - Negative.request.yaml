@@ -1,0 +1,24 @@
+$kind: http-request
+name: "PRUEBA-01-08: Endpoint con token inválido - Negative"
+description: |-
+  Intento de acceder a un endpoint protegido con un token JWT que no es válido (string arbitrario). El API Gateway debe detectar que el token no es un JWT válido y rechazar la petición.
+
+  **Endpoint:** GET /api/customers?page=0&size=1
+  **Header:** Authorization: Bearer token_invalido_falso
+  **Respuesta esperada:** Status 401 Unauthorized
+  **Importancia:** Valida que el gateway verifica la estructura y firma del token, no solo su presencia.
+url: "{{base_url}}/api/customers?page=0&size=1"
+method: GET
+headers:
+  Authorization: Bearer token_invalido_falso
+queryParams:
+  page: "0"
+  size: "1"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 401", function () {
+          pm.response.to.have.status(401);
+      });
+    language: text/javascript
+order: 8000

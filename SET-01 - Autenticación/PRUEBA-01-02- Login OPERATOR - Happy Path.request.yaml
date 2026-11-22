@@ -1,0 +1,33 @@
+$kind: http-request
+name: "PRUEBA-01-02: Login OPERATOR - Happy Path"
+description: |-
+  Login exitoso del usuario operador. Verifica que un usuario con rol OPERATOR (sin ADMIN) también puede autenticarse correctamente.
+
+  **Endpoint:** POST /api/auth/login
+  **Body:** {"username": "operador@yanki.com", "password": "operador123"}
+  **Respuesta esperada:** Status 200 con accessToken y refreshToken
+  **Importancia:** Valida que múltiples usuarios pueden autenticarse independientemente.
+url: "{{base_url}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "username": "operador@yanki.com",
+        "password": "operador123"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response has accessToken", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("accessToken");
+      });
+    language: text/javascript
+order: 2000

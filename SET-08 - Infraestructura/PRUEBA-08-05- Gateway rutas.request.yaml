@@ -1,0 +1,12 @@
+$kind: http-request
+name: "PRUEBA-08-05: Gateway rutas"
+description: |-
+  Verifica que el API Gateway tiene al menos 8 rutas de enrutamiento configuradas, una por cada microservicio backend. Cada ruta define el prefix URL y el servicio destino.
+
+  **Endpoint:** GET /actuator/gateway/routes
+  **Respuesta esperada:** Status 200 con array de rutas (mínimo 8)
+  **Rutas esperadas:** /api/auth → auth-service, /api/customers → customers-service, /api/accounts → accounts-service, /api/credits → credits-service, /api/cards → cards-service, /api/transfers → transfers-service, /api/wallets → wallet-service, /api/reports → reports-service
+  **Importancia:** Sin rutas configuradas, el gateway no puede enrutar las peticiones a los microservicios.
+url: "{{base_url}}/actuator/gateway/routes"
+method: GET
+order: 5000

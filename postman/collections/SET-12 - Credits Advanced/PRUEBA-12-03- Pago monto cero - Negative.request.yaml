@@ -1,0 +1,21 @@
+$kind: http-request
+name: 'PRUEBA-12-03: Pago monto cero - Negative'
+order: 3000
+method: POST
+url: '{{base_url}}/api/credits/{{credit_id}}/payments'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "amount": 0.0,
+        "description": "Pago cero"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 400 or 422", function () { pm.expect(pm.response.code).to.be.oneOf([400, 422]); });'

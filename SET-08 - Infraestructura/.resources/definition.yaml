@@ -1,0 +1,20 @@
+$kind: collection
+description: |-
+  Verificación de infraestructura y servicios base de la plataforma Yanki.
+
+  **Naturaleza:** Pruebas de infraestructura que validan que todos los componentes del ecosistema microservicios están operativos y correctamente configurados antes de ejecutar cualquier prueba de negocio.
+
+  **Objetivo:** Confirmar que el API Gateway, Eureka (Service Discovery), Config Server y los microservicios individuales responden correctamente a health checks y que las rutas de enrutamiento están configuradas.
+
+  **Orden de ejecución:** Este set debe ejecutarse **primero**, antes de cualquier otro set, ya que valida la disponibilidad del entorno completo.
+
+  **Contenedores verificados:**
+  - API Gateway (puerto 8080)
+  - Customers Service (puerto 8082)
+  - Eureka Server (puerto 8761)
+  - Config Server (puerto 8888)
+
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-08)
+  - Documentación: `pruebas_integrales/SET-08-INFRAESTRUCTURA.md`
+  - Casos de prueba: CP-001 a CP-006

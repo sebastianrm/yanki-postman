@@ -1,0 +1,23 @@
+$kind: http-request
+name: 'PRUEBA-11-04: Cuenta cliente inexistente - Negative'
+order: 4000
+method: POST
+url: '{{base_url}}/api/accounts'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "customerId": "000000000000000000000000",
+        "accountType": "SAVINGS",
+        "initialAmount": 100.0,
+        "currency": "PEN"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 400 or 404", function () { pm.expect(pm.response.code).to.be.oneOf([400, 404]); });'

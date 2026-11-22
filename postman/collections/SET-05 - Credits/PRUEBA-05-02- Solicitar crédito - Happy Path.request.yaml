@@ -1,0 +1,26 @@
+$kind: http-request
+name: 'PRUEBA-05-02: Solicitar crédito - Happy Path'
+order: 2000
+method: POST
+url: '{{base_url}}/api/credits'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "customerId": "{{customer_id}}",
+        "type": "PERSONAL",
+        "amount": 1000.0,
+        "termMonths": 12,
+        "interestRate": 12.50
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () { pm.response.to.have.status(201); });
+      pm.test("Response has creditId", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.have.property("creditId"); pm.collectionVariables.set("credit_id", jsonData.creditId); });

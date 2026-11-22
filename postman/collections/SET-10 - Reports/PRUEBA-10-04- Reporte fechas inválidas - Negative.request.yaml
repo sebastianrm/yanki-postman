@@ -1,0 +1,19 @@
+$kind: http-request
+name: 'PRUEBA-10-04: Reporte fechas inválidas - Negative'
+order: 4000
+method: GET
+url: '{{base_url}}/api/reports/aggregated?type=ACCOUNT&from=2024-12-31&to=2024-01-01'
+queryParams:
+  - key: type
+    value: ACCOUNT
+  - key: from
+    value: 2024-12-31
+  - key: to
+    value: 2024-01-01
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 400 or 422", function () { pm.expect(pm.response.code).to.be.oneOf([400, 422]); });'

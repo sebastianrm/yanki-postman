@@ -1,0 +1,44 @@
+$kind: http-request
+name: "PRUEBA-02-02: Crear cliente STANDARD - Happy Path"
+description: |-
+  Crea un nuevo cliente personal con perfil STANDARD. Este es el request fundamental: sin cliente, no se pueden crear cuentas, tarjetas, créditos ni wallets.
+
+  **Endpoint:** POST /api/customers
+  **Body:** Datos completos del cliente (documentType, documentNumber, firstName, lastName, email, phone, address, birthDate, type, profile)
+  **Respuesta esperada:** Status 201 Created con customerId
+  **Importancia:** El customerId retornado se usa en todos los sets posteriores. El test Postman extrae automáticamente el ID.
+  **Nota:** Cambie documentNumber y email para garantizar unicidad.
+url: "{{base_url}}/api/customers"
+method: POST
+headers:
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "documentType": "DNI",
+        "documentNumber": "70123456",
+        "firstName": "Juan",
+        "lastName": "Perez",
+        "email": "juan.perez@test.com",
+        "phone": "999888777",
+        "address": "Av. Test 123",
+        "birthDate": "1990-01-01",
+        "type": "PERSONAL",
+        "profile": "STANDARD"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("Response has customerId", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("customerId");
+          pm.collectionVariables.set("customer_id", jsonData.customerId);
+      });
+    language: text/javascript
+order: 2000

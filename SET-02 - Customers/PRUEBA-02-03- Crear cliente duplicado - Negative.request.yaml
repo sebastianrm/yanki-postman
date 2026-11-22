@@ -1,0 +1,37 @@
+$kind: http-request
+name: "PRUEBA-02-03: Crear cliente duplicado - Negative"
+description: |-
+  Intenta crear un cliente con el mismo número de documento que ya existe. El sistema debe detectar el duplicado y rechazar la creación con 409 Conflict.
+
+  **Endpoint:** POST /api/customers
+  **Body:** Mismo documentNumber que PRUEBA-02-02
+  **Respuesta esperada:** Status 409 Conflict
+  **Importancia:** Integridad de datos — evita duplicados de clientes en el sistema bancario.
+url: "{{base_url}}/api/customers"
+method: POST
+headers:
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "documentType": "DNI",
+        "documentNumber": "70123456",
+        "firstName": "Juan",
+        "lastName": "Perez",
+        "email": "juan.perez@test.com",
+        "phone": "999888777",
+        "address": "Av. Test 123",
+        "birthDate": "1990-01-01",
+        "type": "PERSONAL",
+        "profile": "STANDARD"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 409", function () {
+          pm.response.to.have.status(409);
+      });
+    language: text/javascript
+order: 3000

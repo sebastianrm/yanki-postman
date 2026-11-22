@@ -1,0 +1,22 @@
+$kind: collection
+description: |-
+  Autenticación y autorización JWT de la plataforma Yanki.
+
+  **Naturaleza:** Pruebas del ciclo completo de autenticación: login con credenciales válidas e inválidas, refresh de token, acceso a endpoints protegidos sin token y con token inválido.
+
+  **Objetivo:** Validar que el auth-service emite correctamente tokens JWT, que el API Gateway los valida antes de enrutar, y que las credenciales incorrectas son rechazadas con 401 Unauthorized.
+
+  **Orden de ejecución:** Este set debe ejecutarse **segundo** (después de SET-08 Infraestructura), ya que obtiene el token JWT que se reutiliza en todos los demás sets.
+
+  **Credenciales de prueba:**
+  - Admin: admin@yanki.com / admin123 (roles: ADMIN, OPERATOR)
+  - Operador: operador@yanki.com / operador123 (roles: OPERATOR)
+
+  **Notas importantes:**
+  - El request PRUEBA-01-01 incluye un test Postman que extrae automáticamente el accessToken y lo guarda en la variable `auth_token`.
+  - Los tokens JWT expiran después de un tiempo; use PRUEBA-01-06 (Refresh) para renovarlos.
+
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-01)
+  - Documentación: `pruebas_integrales/SET-01-AUTENTICACION.md`
+  - Casos de prueba: CP-103 a CP-110

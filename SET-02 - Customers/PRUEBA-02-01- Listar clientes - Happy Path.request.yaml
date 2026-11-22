@@ -1,0 +1,24 @@
+$kind: http-request
+name: "PRUEBA-02-01: Listar clientes - Happy Path"
+description: |-
+  Lista todos los clientes del sistema con paginación. Es el primer paso para verificar el estado actual de la base de datos antes de crear nuevos clientes.
+
+  **Endpoint:** GET /api/customers?page=0&size=10
+  **Header:** Authorization: Bearer {{auth_token}}
+  **Respuesta esperada:** Status 200 con array de clientes (puede estar vacío en ambiente limpio)
+  **Importancia:** Endpoint de consulta principal — valida que el servicio responde y el token es válido.
+url: "{{base_url}}/api/customers?page=0&size=10"
+method: GET
+headers:
+  Authorization: Bearer {{auth_token}}
+queryParams:
+  page: "0"
+  size: "10"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 1000

@@ -1,0 +1,41 @@
+$kind: collection
+name: SET-05 - Credits
+description: |-
+  Gestión de créditos activos (personal y empresarial) de la plataforma Yanki.
+  
+  **Naturaleza:** Pruebas básicas del ciclo de créditos: listado, solicitud de nuevo crédito y consulta de crédito inexistente.
+  
+  **Objetivo:** Validar que el credits-service permite solicitar créditos vinculados a un cliente, con scoring automático, y que los créditos inexistentes retornan 404.
+  
+  **Orden de ejecución:** Después de SET-02 (Customers), ya que requiere un customer_id válido.
+  
+  **Tipos de crédito:**
+  - PERSONAL: Crédito personal (monto menor, sin garantía)
+  - ENTERPRISE: Crédito empresarial (monto mayor, con garantía)
+  
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-05)
+  - Documentación: `pruebas_integrales/SET-05-CREDITS.md`
+  - Casos de prueba: CP-058 a CP-065
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+    type: string
+  - key: auth_token
+    value: ''
+    type: string
+  - key: customer_id
+    value: ''
+    type: string
+  - key: account_id
+    value: ''
+    type: string
+  - key: card_id
+    value: ''
+    type: string
+  - key: credit_id
+    value: ''
+    type: string
+  - key: wallet_id
+    value: ''
+    type: string

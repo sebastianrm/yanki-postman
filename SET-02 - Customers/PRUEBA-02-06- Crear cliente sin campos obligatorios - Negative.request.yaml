@@ -1,0 +1,28 @@
+$kind: http-request
+name: "PRUEBA-02-06: Crear cliente sin campos obligatorios - Negative"
+description: |-
+  Intenta crear un cliente con solo el tipo de documento, omitiendo todos los campos obligatorios (documentNumber, firstName, lastName, email, etc.). El sistema debe validar y rechazar.
+
+  **Endpoint:** POST /api/customers
+  **Body:** {"documentType": "DNI"} — solo un campo
+  **Respuesta esperada:** Status 400 Bad Request o 422 Unprocessable Entity
+  **Importancia:** Validación de entrada — sin campos obligatorios, el cliente no sería usable en el sistema.
+url: "{{base_url}}/api/customers"
+method: POST
+headers:
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "documentType": "DNI"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 400 or 422", function () {
+          pm.expect(pm.response.code).to.be.oneOf([400, 422]);
+      });
+    language: text/javascript
+order: 6000

@@ -1,0 +1,37 @@
+$kind: collection
+name: SET-16 - Auth Advanced
+description: |-
+  Pruebas avanzadas de autenticación y autorización.
+  
+  **Naturaleza:** Pruebas de seguridad JWT: tokens malformados, issuer inválido, tokens expirados, logout con token inválido y validación del Gateway.
+  
+  **Objetivo:** Validar que el API Gateway y auth-service manejan correctamente tokens JWT inválidos, expirados o malformados, protegiendo los endpoints de negocio.
+  
+  **Orden de ejecución:** Después de SET-01 (Authenticación), ya que requiere entender el ciclo de tokens.
+  
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-16)
+  - Documentación: `pruebas_integrales/SET-16-AUTH-ADVANCED.md`
+  - Casos de prueba: CP-108 a CP-116
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+    type: string
+  - key: auth_token
+    value: ''
+    type: string
+  - key: customer_id
+    value: ''
+    type: string
+  - key: account_id
+    value: ''
+    type: string
+  - key: card_id
+    value: ''
+    type: string
+  - key: credit_id
+    value: ''
+    type: string
+  - key: wallet_id
+    value: ''
+    type: string

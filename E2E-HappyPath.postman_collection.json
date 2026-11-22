@@ -1,0 +1,362 @@
+{
+	"info": {
+		"_postman_id": "8a001001-0001-00e2-0000-0000000000e2",
+		"name": "E2E - Happy Path Completo",
+		"description": "Flujo End-to-End completo simulando un escenario real de usuario bancario en la plataforma Yanki.\n\n**Naturaleza:** Colección E2E que ejecuta un flujo continuo y dependiente: autenticación, creación de 3 clientes (STANDARD, VIP, PYME), apertura de cuentas, emisión de tarjetas, transferencias, wallet digital y reportes.\n\n**Objetivo:** Validar que toda la plataforma funciona como un sistema integrado, no solo como microservicios aislados. Cada paso depende del anterior, simulando el ciclo de vida real de un cliente bancario.\n\n**Diferencia con run-tests.ps1:**\n- Este script es un flujo E2E continuo (happy path); run-tests.ps1 es una suite modular.\n- Este script crea 3 clientes (STANDARD, VIP, PYME); run-tests.ps1 crea 1.\n- Este script incluye transferencias reales, wallet con top-up y reporte 360.\n\n**Orden de ejecución:** Ejecutar los requests en orden secuencial. Cada request depende del anterior.\n\n**Referencias:**\n- Script: `pruebas_integrales/run-happy-path-e2e.ps1`\n- Documentación: `pruebas_integrales/SET-01` a `SET-07`",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"variable": [
+			{"key": "base_url", "value": "http://localhost:8080", "type": "string"},
+			{"key": "auth_token", "value": "", "type": "string"},
+			{"key": "refresh_token", "value": "", "type": "string"},
+			{"key": "customer_id_standard", "value": "", "type": "string"},
+			{"key": "customer_id_vip", "value": "", "type": "string"},
+			{"key": "customer_id_pyme", "value": "", "type": "string"},
+			{"key": "account_id_savings", "value": "", "type": "string"},
+			{"key": "account_id_current", "value": "", "type": "string"},
+			{"key": "card_id_debit", "value": "", "type": "string"},
+			{"key": "card_id_credit", "value": "", "type": "string"},
+			{"key": "wallet_id", "value": "", "type": "string"}
+		]
+	},
+	"item": [
+		{
+			"name": "E2E-01: Login operador - Authentication",
+			"request": {
+				"method": "POST",
+				"header": [{"key": "Content-Type", "value": "application/json", "type": "text"}],
+				"body": {"mode": "raw", "raw": "{\n    \"username\": \"operador@yanki.com\",\n    \"password\": \"operador123\"\n}"},
+				"url": {"raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"]},
+				"description": "Inicia sesión con el usuario operador para obtener el token JWT que se usará en todo el flujo E2E.\n\n**Endpoint:** POST /api/auth/login\n**Respuesta esperada:** Status 200 con accessToken y refreshToken"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });", "var jsonData = pm.response.json(); pm.collectionVariables.set(\"auth_token\", jsonData.accessToken); pm.collectionVariables.set(\"refresh_token\", jsonData.refreshToken);"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-02: Crear cliente STANDARD - Customer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"70200001\",\n    \"firstName\": \"Carlos\",\n    \"lastName\": \"TestStandard\",\n    \"email\": \"carlos.standard@test.com\",\n    \"phone\": \"999111222\",\n    \"address\": \"Av. Standard 100\",\n    \"birthDate\": \"1985-05-15\",\n    \"type\": \"PERSONAL\",\n    \"profile\": \"STANDARD\"\n}"},
+				"url": {"raw": "{{base_url}}/api/customers", "host": ["{{base_url}}"], "path": ["api", "customers"]},
+				"description": "Crea el primer cliente: PERSONAL STANDARD. Este cliente será el protagonista del flujo E2E: abrirá cuentas, emitirá tarjetas y realizará transferencias.\n\n**Endpoint:** POST /api/customers\n**Respuesta esperada:** Status 201 con customerId"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });", "var jsonData = pm.response.json(); pm.collectionVariables.set(\"customer_id_standard\", jsonData.customerId);"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-03: Crear cliente VIP - Customer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"70200002\",\n    \"firstName\": \"Maria\",\n    \"lastName\": \"TestVip\",\n    \"email\": \"maria.vip@test.com\",\n    \"phone\": \"999222333\",\n    \"address\": \"Av. VIP 200\",\n    \"birthDate\": \"1990-08-20\",\n    \"type\": \"PERSONAL\",\n    \"profile\": \"STANDARD\"\n}"},
+				"url": {"raw": "{{base_url}}/api/customers", "host": ["{{base_url}}"], "path": ["api", "customers"]},
+				"description": "Crea el segundo cliente: PERSONAL que será actualizado a VIP después de emitir tarjeta de crédito.\n\n**Endpoint:** POST /api/customers\n**Respuesta esperada:** Status 201 con customerId"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });", "var jsonData = pm.response.json(); pm.collectionVariables.set(\"customer_id_vip\", jsonData.customerId);"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-04: Crear cliente PYME - Customer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"documentType\": \"RUC\",\n    \"documentNumber\": \"20500001001\",\n    \"firstName\": \"Empresa Test\",\n    \"lastName\": \"SAC\",\n    \"email\": \"contacto@empiratest.com\",\n    \"phone\": \"999333444\",\n    \"address\": \"Av. Empresarial 300\",\n    \"birthDate\": \"2020-01-01\",\n    \"type\": \"ENTERPRISE\",\n    \"profile\": \"PYME\"\n}"},
+				"url": {"raw": "{{base_url}}/api/customers", "host": ["{{base_url}}"], "path": ["api", "customers"]},
+				"description": "Crea el tercer cliente: ENTERPRISE PYME. Representa una pequeña y mediana empresa.\n\n**Endpoint:** POST /api/customers\n**Respuesta esperada:** Status 201 con customerId"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });", "var jsonData = pm.response.json(); pm.collectionVariables.set(\"customer_id_pyme\", jsonData.customerId);"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-05: Consultar cliente STANDARD por ID - Customer",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/customers/{{customer_id_standard}}", "host": ["{{base_url}}"], "path": ["api", "customers", "{{customer_id_standard}}"]},
+				"description": "Verifica que el cliente STANDARD fue creado correctamente consultándolo por ID.\n\n**Endpoint:** GET /api/customers/{id}\n**Respuesta esperada:** Status 200 con datos del cliente"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-06: Crear cuenta SAVINGS - Account",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"customerId\": \"{{customer_id_standard}}\",\n    \"accountType\": \"SAVINGS\",\n    \"initialAmount\": 1000.0,\n    \"currency\": \"PEN\"\n}"},
+				"url": {"raw": "{{base_url}}/api/accounts", "host": ["{{base_url}}"], "path": ["api", "accounts"]},
+				"description": "Abre una cuenta de ahorro para el cliente STANDARD con S/1,000 de saldo inicial.\n\n**Endpoint:** POST /api/accounts\n**Respuesta esperada:** Status 201 con accountId"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });", "var jsonData = pm.response.json(); pm.collectionVariables.set(\"account_id_savings\", jsonData.accountId);"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-07: Crear cuenta CURRENT - Account",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"customerId\": \"{{customer_id_standard}}\",\n    \"accountType\": \"CURRENT\",\n    \"initialAmount\": 500.0,\n    \"currency\": \"PEN\"\n}"},
+				"url": {"raw": "{{base_url}}/api/accounts", "host": ["{{base_url}}"], "path": ["api", "accounts"]},
+				"description": "Abre una cuenta corriente para el cliente STANDARD con S/500 de saldo inicial. Servirá como destino de transferencias.\n\n**Endpoint:** POST /api/accounts\n**Respuesta esperada:** Status 201 con accountId"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });", "var jsonData = pm.response.json(); pm.collectionVariables.set(\"account_id_current\", jsonData.accountId);"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-08: Depósito SAVINGS - Account",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"amount\": 3000.0,\n    \"description\": \"Deposito E2E\",\n    \"channel\": \"WEB\"\n}"},
+				"url": {"raw": "{{base_url}}/api/accounts/{{account_id_savings}}/deposits", "host": ["{{base_url}}"], "path": ["api", "accounts", "{{account_id_savings}}", "deposits"]},
+				"description": "Deposita S/3,000 en la cuenta SAVINGS. Saldo esperado: S/4,000 (1000 inicial + 3000 depósito).\n\n**Endpoint:** POST /api/accounts/{id}/deposits\n**Respuesta esperada:** Status 200 o 201"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200 or 201\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-09: Consultar saldo SAVINGS - Account",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/accounts/{{account_id_savings}}/balance", "host": ["{{base_url}}"], "path": ["api", "accounts", "{{account_id_savings}}", "balance"]},
+				"description": "Consulta el saldo de la cuenta SAVINGS después del depósito. Se espera S/4,000.\n\n**Endpoint:** GET /api/accounts/{id}/balance\n**Respuesta esperada:** Status 200 con balance"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-10: Consultar movimientos SAVINGS - Account",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/accounts/{{account_id_savings}}/movements", "host": ["{{base_url}}"], "path": ["api", "accounts", "{{account_id_savings}}", "movements"]},
+				"description": "Lista los movimientos de la cuenta SAVINGS. Debe mostrar el depósito de S/3,000.\n\n**Endpoint:** GET /api/accounts/{id}/movements\n**Respuesta esperada:** Status 200 con lista de movimientos"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-11: Emitir tarjeta débito - Card",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"customerId\": \"{{customer_id_standard}}\",\n    \"type\": \"DEBIT\",\n    \"subtype\": \"PERSONAL\",\n    \"linkedAccountId\": \"{{account_id_savings}}\"\n}"},
+				"url": {"raw": "{{base_url}}/api/cards", "host": ["{{base_url}}"], "path": ["api", "cards"]},
+				"description": "Emite una tarjeta de débito vinculada a la cuenta SAVINGS del cliente STANDARD.\n\n**Endpoint:** POST /api/cards\n**Respuesta esperada:** Status 201 con cardId"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });", "var jsonData = pm.response.json(); pm.collectionVariables.set(\"card_id_debit\", jsonData.cardId);"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-12: Emitir tarjeta crédito VIP - Card",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"customerId\": \"{{customer_id_vip}}\",\n    \"type\": \"CREDIT\",\n    \"subtype\": \"PERSONAL\",\n    \"creditLimit\": 5000.0\n}"},
+				"url": {"raw": "{{base_url}}/api/cards", "host": ["{{base_url}}"], "path": ["api", "cards"]},
+				"description": "Emite una tarjeta de crédito para el cliente VIP con límite de S/5,000.\n\n**Endpoint:** POST /api/cards\n**Respuesta esperada:** Status 201 con cardId"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });", "var jsonData = pm.response.json(); pm.collectionVariables.set(\"card_id_credit\", jsonData.cardId);"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-13: Consultar límite tarjeta crédito - Card",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/cards/{{card_id_credit}}/limit", "host": ["{{base_url}}"], "path": ["api", "cards", "{{card_id_credit}}", "limit"]},
+				"description": "Verifica el límite de crédito de la tarjeta emitida al cliente VIP.\n\n**Endpoint:** GET /api/cards/{id}/limit\n**Respuesta esperada:** Status 200 con información del límite"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-14: Transferencia intra-cliente - Transfer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"},
+					{"key": "X-Idempotency-Key", "value": "e2e-transfer-001", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"sourceAccountId\": \"{{account_id_savings}}\",\n    \"destinationAccountId\": \"{{account_id_current}}\",\n    \"amount\": 500.0,\n    \"description\": \"Transferencia intra-cliente E2E\"\n}"},
+				"url": {"raw": "{{base_url}}/api/transfers", "host": ["{{base_url}}"], "path": ["api", "transfers"]},
+				"description": "Transfiere S/500 de SAVINGS a CURRENT (intra-cliente). Saldo SAVINGS esperado: S/3,500. Saldo CURRENT esperado: S/1,000.\n\n**Endpoint:** POST /api/transfers\n**Header:** X-Idempotency-Key para garantizar idempotencia\n**Respuesta esperada:** Status 201 o 202"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 201 or 202\", function () { pm.expect(pm.response.code).to.be.oneOf([201, 202]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-15: Listar transferencias - Transfer",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/transfers?customerId={{customer_id_standard}}", "host": ["{{base_url}}"], "path": ["api", "transfers"], "query": [{"key": "customerId", "value": "{{customer_id_standard}}"}]},
+				"description": "Verifica que la transferencia intra-cliente aparece en el historial.\n\n**Endpoint:** GET /api/transfers?customerId={id}\n**Respuesta esperada:** Status 200 con lista de transferencias"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-16: Crear wallet digital - Wallet",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"documentType\": \"DNI\",\n    \"documentNumber\": \"70200001\",\n    \"phone\": \"+51999111222\",\n    \"imei\": \"353456789012345\",\n    \"email\": \"wallet.e2e@test.com\",\n    \"firstName\": \"Carlos\",\n    \"lastName\": \"TestStandard\",\n    \"birthDate\": \"1985-05-15\"\n}"},
+				"url": {"raw": "{{base_url}}/api/wallets", "host": ["{{base_url}}"], "path": ["api", "wallets"]},
+				"description": "Crea un wallet digital para el cliente STANDARD con datos de dispositivo.\n\n**Endpoint:** POST /api/wallets\n**Respuesta esperada:** Status 201 con walletId"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });", "var jsonData = pm.response.json(); pm.collectionVariables.set(\"wallet_id\", jsonData.walletId);"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-17: Asociar tarjeta a wallet - Wallet",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"cardId\": \"{{card_id_debit}}\"\n}"},
+				"url": {"raw": "{{base_url}}/api/wallets/{{wallet_id}}/cards", "host": ["{{base_url}}"], "path": ["api", "wallets", "{{wallet_id}}", "cards"]},
+				"description": "Asocia la tarjeta de débito al wallet para permitir pagos y retiros.\n\n**Endpoint:** POST /api/wallets/{id}/cards\n**Respuesta esperada:** Status 200 o 201"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200 or 201\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-18: Top-up wallet - Wallet",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"amount\": 200.0,\n    \"sourceAccountId\": \"{{account_id_savings}}\"\n}"},
+				"url": {"raw": "{{base_url}}/api/wallets/{{wallet_id}}/topup", "host": ["{{base_url}}"], "path": ["api", "wallets", "{{wallet_id}}", "topup"]},
+				"description": "Recarga el wallet con S/200 desde la cuenta SAVINGS. Saldo SAVINGS esperado: S/3,300.\n\n**Endpoint:** POST /api/wallets/{id}/topup\n**Respuesta esperada:** Status 200, 201 o 202"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200, 201 or 202\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-19: Reporte cliente 360° - Report",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/reports/customer-360/{{customer_id_standard}}", "host": ["{{base_url}}"], "path": ["api", "reports", "customer-360", "{{customer_id_standard}}"]},
+				"description": "Genera un reporte 360° del cliente STANDARD: cuentas, tarjetas, créditos, transferencias y wallet en un solo reporte.\n\n**Endpoint:** GET /api/reports/customer-360/{id}\n**Respuesta esperada:** Status 200 con vista completa del cliente"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-20: Verificar saldo final SAVINGS - Verification",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/accounts/{{account_id_savings}}/balance", "host": ["{{base_url}}"], "path": ["api", "accounts", "{{account_id_savings}}", "balance"]},
+				"description": "Verifica el saldo final de la cuenta SAVINGS después de todas las operaciones:\n- Inicial: S/1,000\n- Depósito: +S/3,000\n- Transferencia: -S/500\n- Top-up wallet: -S/200\n- **Saldo esperado: S/3,300**\n\n**Endpoint:** GET /api/accounts/{id}/balance\n**Respuesta esperada:** Status 200 con balance ≈ S/3,300"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-21: Verificar saldo final CURRENT - Verification",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/accounts/{{account_id_current}}/balance", "host": ["{{base_url}}"], "path": ["api", "accounts", "{{account_id_current}}", "balance"]},
+				"description": "Verifica el saldo final de la cuenta CURRENT después de recibir la transferencia:\n- Inicial: S/500\n- Transferencia recibida: +S/500\n- **Saldo esperado: S/1,000**\n\n**Endpoint:** GET /api/accounts/{id}/balance\n**Respuesta esperada:** Status 200 con balance ≈ S/1,000"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "E2E-22: Logout - Authentication",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"refreshToken\": \"{{refresh_token}}\"\n}"},
+				"url": {"raw": "{{base_url}}/api/auth/logout", "host": ["{{base_url}}"], "path": ["api", "auth", "logout"]},
+				"description": "Cierra la sesión y blacklistera el refresh token. Último paso del flujo E2E.\n\n**Endpoint:** POST /api/auth/logout\n**Respuesta esperada:** Status 200 o 204"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200 or 204\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 204]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		}
+	]
+}

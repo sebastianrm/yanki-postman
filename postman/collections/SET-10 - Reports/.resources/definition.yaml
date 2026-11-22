@@ -1,0 +1,43 @@
+$kind: collection
+name: SET-10 - Reports
+description: |-
+  Reportes bancarios agregados de la plataforma Yanki.
+  
+  **Naturaleza:** Pruebas de generación de reportes: agregados por tipo de producto, vista 360° del cliente, movimientos de tarjetas y validación de parámetros.
+  
+  **Objetivo:** Validar que el reports-service genera correctamente reportes consolidados que agregan datos de múltiples microservicios (CQRS read-only).
+  
+  **Orden de ejecución:** Después de SET-02 a SET-07, ya que los reportes agregan datos de clientes, cuentas, tarjetas, créditos y transferencias.
+  
+  **Tipos de reporte:**
+  - Aggregated: Resumen por tipo de producto (ACCOUNT, CREDIT, CARD, etc.)
+  - Products: Resumen de todos los productos
+  - Customer 360°: Vista integral de un cliente
+  - Movements: Movimientos de tarjetas
+  
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-10)
+  - Documentación: `pruebas_integrales/SET-10-REPORTS.md`
+  - Casos de prueba: CP-123 a CP-125
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+    type: string
+  - key: auth_token
+    value: ''
+    type: string
+  - key: customer_id
+    value: ''
+    type: string
+  - key: account_id
+    value: ''
+    type: string
+  - key: card_id
+    value: ''
+    type: string
+  - key: credit_id
+    value: ''
+    type: string
+  - key: wallet_id
+    value: ''
+    type: string

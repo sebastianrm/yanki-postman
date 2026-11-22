@@ -1,0 +1,28 @@
+$kind: http-request
+name: "PRUEBA-01-04: Login usuario inexistente - Negative"
+description: |-
+  Intento de login con un usuario que no existe en el sistema. Debe retornar 401 sin revelar si el usuario existe o no (para prevenir user enumeration attacks).
+
+  **Endpoint:** POST /api/auth/login
+  **Body:** {"username": "noexiste@yanki.com", "password": "password"}
+  **Respuesta esperada:** Status 401 Unauthorized
+  **Importancia:** Seguridad — la respuesta debe ser idéntica a credenciales inválidas para no filtrar información.
+url: "{{base_url}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "username": "noexiste@yanki.com",
+        "password": "password"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 401", function () {
+          pm.response.to.have.status(401);
+      });
+    language: text/javascript
+order: 4000

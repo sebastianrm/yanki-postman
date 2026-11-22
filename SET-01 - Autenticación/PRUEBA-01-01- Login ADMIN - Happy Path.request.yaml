@@ -1,0 +1,40 @@
+$kind: http-request
+name: "PRUEBA-01-01: Login ADMIN - Happy Path"
+description: |-
+  Login exitoso del usuario administrador. Este es el request principal de autenticación: obtiene el accessToken JWT y el refreshToken que se usarán en todas las demás pruebas.
+
+  **Endpoint:** POST /api/auth/login
+  **Body:** {"username": "admin@yanki.com", "password": "admin123"}
+  **Respuesta esperada:** Status 200 con {"accessToken": "eyJ...", "refreshToken": "eyJ...", "roles": ["ADMIN", "OPERATOR"]}
+  **Importancia:** Sin este token, ninguna otra prueba puede ejecutarse. El test Postman extrae automáticamente el token.
+url: "{{base_url}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "username": "admin@yanki.com",
+        "password": "admin123"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response has accessToken", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("accessToken");
+          pm.collectionVariables.set("auth_token", jsonData.accessToken);
+      });
+
+      pm.test("Response has refreshToken", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("refreshToken");
+          pm.collectionVariables.set("refresh_token", jsonData.refreshToken);
+      });
+    language: text/javascript
+order: 1000

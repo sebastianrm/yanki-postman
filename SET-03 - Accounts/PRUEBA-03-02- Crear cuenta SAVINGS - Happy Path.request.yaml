@@ -1,0 +1,38 @@
+$kind: http-request
+name: "PRUEBA-03-02: Crear cuenta SAVINGS - Happy Path"
+description: |-
+  Abre una nueva cuenta de ahorro (SAVINGS) para el cliente especificado con un monto inicial de S/100.00. Esta es la operación fundamental de banking: sin cuenta, no hay depósitos, retiros ni transferencias.
+
+  **Endpoint:** POST /api/accounts
+  **Body:** customerId (del cliente creado en SET-02), accountType: SAVINGS, initialAmount: 100.0, currency: PEN
+  **Respuesta esperada:** Status 201 Created con accountId
+  **Importancia:** El accountId se usa en todas las operaciones financieras posteriores.
+  **Nota:** Requiere customer_id poblado (ejecutar SET-02 primero).
+url: "{{base_url}}/api/accounts"
+method: POST
+headers:
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "customerId": "{{customer_id}}",
+        "accountType": "SAVINGS",
+        "initialAmount": 100.0,
+        "currency": "PEN"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 201", function () {
+          pm.response.to.have.status(201);
+      });
+
+      pm.test("Response has accountId", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("accountId");
+          pm.collectionVariables.set("account_id", jsonData.accountId);
+      });
+    language: text/javascript
+order: 2000

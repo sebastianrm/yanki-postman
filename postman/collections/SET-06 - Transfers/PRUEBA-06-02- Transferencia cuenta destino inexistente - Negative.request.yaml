@@ -1,0 +1,23 @@
+$kind: http-request
+name: 'PRUEBA-06-02: Transferencia cuenta destino inexistente - Negative'
+order: 2000
+method: POST
+url: '{{base_url}}/api/transfers'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "sourceAccountId": "{{account_id}}",
+        "destinationAccountId": "000000000000000000000000",
+        "amount": 50.0,
+        "description": "Transferencia prueba"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 400 or 404", function () { pm.expect(pm.response.code).to.be.oneOf([400, 404]); });'

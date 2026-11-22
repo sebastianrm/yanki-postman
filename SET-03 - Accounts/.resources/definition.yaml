@@ -1,0 +1,19 @@
+$kind: collection
+description: |-
+  Gestión de cuentas pasivas (ahorro, corriente, plazo fijo) de la plataforma Yanki.
+
+  **Naturaleza:** Pruebas del ciclo completo de cuentas bancarias: apertura de cuentas SAVINGS y CURRENT, depósitos, retiros, consulta de saldo, movimientos y validaciones de negocio (saldo insuficiente, cuenta inexistente).
+
+  **Objetivo:** Validar que el accounts-service permite abrir cuentas vinculadas a un cliente, realizar operaciones financieras (depósitos y retiros), y que las reglas de negocio se aplican correctamente (no se puede retirar más del saldo disponible).
+
+  **Orden de ejecución:** Después de SET-02 (Customers), ya que requiere un customer_id válido.
+
+  **Tipos de cuenta:**
+  - SAVINGS: Cuenta de ahorro (típica para personas)
+  - CURRENT: Cuenta corriente (para transacciones frecuentes)
+  - FIXED_TERM: Plazo fijo (depósito a plazo)
+
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-03)
+  - Documentación: `pruebas_integrales/SET-03-ACCOUNTS.md`
+  - Casos de prueba: CP-016 a CP-027

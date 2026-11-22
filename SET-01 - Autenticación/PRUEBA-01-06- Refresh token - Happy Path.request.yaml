@@ -1,0 +1,34 @@
+$kind: http-request
+name: "PRUEBA-01-06: Refresh token - Happy Path"
+description: |-
+  Renueva el access token JWT usando un refresh token válido. Este mecanismo permite mantener la sesión sin requerir re-autenticación con credenciales.
+
+  **Endpoint:** POST /api/auth/refresh
+  **Body:** {"refreshToken": "{{refresh_token}}"} (variable de colección)
+  **Respuesta esperada:** Status 200 con nuevo accessToken
+  **Importancia:** Permite mantener sesiones largas sin exponer las credenciales del usuario.
+  **Nota:** Ejecutar PRUEBA-01-01 primero para poblar la variable refresh_token.
+url: "{{base_url}}/api/auth/refresh"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "refreshToken": "{{refresh_token}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response has new accessToken", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property("accessToken");
+          pm.collectionVariables.set("auth_token", jsonData.accessToken);
+      });
+    language: text/javascript
+order: 6000

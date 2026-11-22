@@ -1,0 +1,22 @@
+$kind: http-request
+name: "PRUEBA-01-07: Endpoint protegido sin token - Negative"
+description: |-
+  Intento de acceder a un endpoint protegido (listar clientes) sin enviar ningún token JWT. El API Gateway debe rechazar la petición antes de enrutarla al microservicio.
+
+  **Endpoint:** GET /api/customers?page=0&size=1
+  **Headers:** Ninguno (sin Authorization)
+  **Respuesta esperada:** Status 401 Unauthorized
+  **Importancia:** Seguridad fundamental — ningún endpoint de negocio debe ser accesible sin autenticación.
+url: "{{base_url}}/api/customers?page=0&size=1"
+method: GET
+queryParams:
+  page: "0"
+  size: "1"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 401", function () {
+          pm.response.to.have.status(401);
+      });
+    language: text/javascript
+order: 7000

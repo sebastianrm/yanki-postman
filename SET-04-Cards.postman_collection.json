@@ -1,0 +1,62 @@
+{
+	"info": {
+		"_postman_id": "8a001001-0001-0004-0000-000000000004",
+		"name": "SET-04 - Cards",
+		"description": "Gestión de tarjetas de crédito y débito de la plataforma Yanki.\n\n**Naturaleza:** Pruebas básicas del ciclo de tarjetas: listado por cliente, emisión de tarjetas y consulta de tarjeta inexistente.\n\n**Objetivo:** Validar que el cards-service permite emitir tarjetas vinculadas a un cliente, con límite de crédito configurable, y que las tarjetas inexistentes retornan 404.\n\n**Orden de ejecución:** Después de SET-02 (Customers), ya que requiere un customer_id válido.\n\n**Tipos de tarjeta:**\n- CREDIT: Tarjeta de crédito (con límite y facturación)\n- DEBIT: Tarjeta de débito (vinculada a cuenta bancaria)\n\n**Subtipos:**\n- PERSONAL: Tarjeta individual\n- ENTERPRISE: Tarjeta empresarial\n\n**Referencias:**\n- Script: `pruebas_integrales/run-tests.ps1` (SET-04)\n- Documentación: `pruebas_integrales/SET-04-CARDS.md`\n- Casos de prueba: CP-066 a CP-075",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"variable": [
+			{"key": "base_url", "value": "http://localhost:8080", "type": "string"},
+			{"key": "auth_token", "value": "", "type": "string"},
+			{"key": "customer_id", "value": "", "type": "string"},
+			{"key": "account_id", "value": "", "type": "string"},
+			{"key": "card_id", "value": "", "type": "string"},
+			{"key": "credit_id", "value": "", "type": "string"},
+			{"key": "wallet_id", "value": "", "type": "string"}
+		]
+	},
+	"item": [
+		{
+			"name": "PRUEBA-04-01: Listar tarjetas - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/cards?customerId={{customer_id}}", "host": ["{{base_url}}"], "path": ["api", "cards"], "query": [{"key": "customerId", "value": "{{customer_id}}"}]},
+				"description": "Lista todas las tarjetas de un cliente específico. Endpoint de consulta principal.\n\n**Endpoint:** GET /api/cards?customerId={id}\n**Respuesta esperada:** Status 200 con array de tarjetas (puede estar vacío)"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-04-02: Emitir tarjeta - Happy Path",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"customerId\": \"{{customer_id}}\",\n    \"type\": \"CREDIT\",\n    \"subtype\": \"PERSONAL\",\n    \"creditLimit\": 5000.0\n}"},
+				"url": {"raw": "{{base_url}}/api/cards", "host": ["{{base_url}}"], "path": ["api", "cards"]},
+				"description": "Emite una nueva tarjeta de crédito personal con un límite de S/5,000. La tarjeta queda vinculada al cliente y lista para realizar consumos.\n\n**Endpoint:** POST /api/cards\n**Body:** customerId, type: CREDIT, subtype: PERSONAL, creditLimit: 5000.0\n**Respuesta esperada:** Status 201 Created con cardId\n**Importancia:** El cardId se usa en SET-13 (Cards Advanced) para consumos, reembolsos y estado de cuenta."
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });", "pm.test(\"Response has cardId\", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.have.property(\"cardId\"); pm.collectionVariables.set(\"card_id\", jsonData.cardId); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-04-03: Tarjeta inexistente - Negative",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/cards/000000000000000000000000", "host": ["{{base_url}}"], "path": ["api", "cards", "000000000000000000000000"]},
+				"description": "Intenta consultar una tarjeta con un ID que no existe. Debe retornar 404.\n\n**Endpoint:** GET /api/cards/000000000000000000000000\n**Respuesta esperada:** Status 404 Not Found"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		}
+	]
+}

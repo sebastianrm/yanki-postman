@@ -1,0 +1,105 @@
+{
+	"info": {
+		"_postman_id": "8a001001-0001-0016-0000-000000000016",
+		"name": "SET-16 - Auth Advanced",
+		"description": "Pruebas avanzadas de autenticación y autorización.\n\n**Naturaleza:** Pruebas de seguridad JWT: tokens malformados, issuer inválido, tokens expirados, logout con token inválido y validación del Gateway.\n\n**Objetivo:** Validar que el API Gateway y auth-service manejan correctamente tokens JWT inválidos, expirados o malformados, protegiendo los endpoints de negocio.\n\n**Orden de ejecución:** Después de SET-01 (Authenticación), ya que requiere entender el ciclo de tokens.\n\n**Referencias:**\n- Script: `pruebas_integrales/run-tests.ps1` (SET-16)\n- Documentación: `pruebas_integrales/SET-16-AUTH-ADVANCED.md`\n- Casos de prueba: CP-108 a CP-116",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"variable": [
+			{"key": "base_url", "value": "http://localhost:8080", "type": "string"},
+			{"key": "auth_token", "value": "", "type": "string"},
+			{"key": "customer_id", "value": "", "type": "string"},
+			{"key": "account_id", "value": "", "type": "string"},
+			{"key": "card_id", "value": "", "type": "string"},
+			{"key": "credit_id", "value": "", "type": "string"},
+			{"key": "wallet_id", "value": "", "type": "string"}
+		]
+	},
+	"item": [
+		{
+			"name": "PRUEBA-16-01: Token JWT malformado - Negative",
+			"request": {
+				"method": "GET",
+				"header": [
+					{"key": "Authorization", "value": "Bearer eyJhbGciOiJIUzI1NiJ9.bad_structure", "type": "text"}
+				],
+				"url": {"raw": "{{base_url}}/api/customers?page=0&size=1", "host": ["{{base_url}}"], "path": ["api", "customers"], "query": [
+					{"key": "page", "value": "0"},
+					{"key": "size", "value": "1"}
+				]},
+				"description": "Envía un token JWT con estructura inválida (solo 2 partes en lugar de 3). El gateway debe detectar que no es un JWT válido.\n\n**Endpoint:** GET /api/customers\n**Header:** Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.bad_structure\n**Respuesta esperada:** Status 401 — token malformado"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 401\", function () { pm.response.to.have.status(401); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-16-02: Token issuer inválido - Negative",
+			"request": {
+				"method": "GET",
+				"header": [
+					{"key": "Authorization", "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJiYWRfaXNzdWVyIn0.bad_issuer", "type": "text"}
+				],
+				"url": {"raw": "{{base_url}}/api/customers?page=0&size=1", "host": ["{{base_url}}"], "path": ["api", "customers"], "query": [
+					{"key": "page", "value": "0"},
+					{"key": "size", "value": "1"}
+				]},
+				"description": "Envía un token JWT con issuer (emisora) inválida. Aunque la estructura sea correcta, el issuer no coincide con el esperado por el gateway.\n\n**Endpoint:** GET /api/customers\n**Header:** Authorization: Bearer (token con issuer: bad_issuer)\n**Respuesta esperada:** Status 401 — issuer no confiable"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 401\", function () { pm.response.to.have.status(401); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-16-03: Refresh token expirado - Negative",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDAwMDAwMDB9.expired\"\n}"},
+				"url": {"raw": "{{base_url}}/api/auth/refresh", "host": ["{{base_url}}"], "path": ["api", "auth", "refresh"]},
+				"description": "Intenta refrescar un token usando un refresh token que ya expiró (exp: 1600000000 = enero 2020). El sistema debe rechazar.\n\n**Endpoint:** POST /api/auth/refresh\n**Body:** refreshToken expirado\n**Respuesta esperada:** Status 401 — token expirado"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 401\", function () { pm.response.to.have.status(401); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-16-04: Logout token inválido - Negative",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"refreshToken\": \"invalid_token\"\n}"},
+				"url": {"raw": "{{base_url}}/api/auth/logout", "host": ["{{base_url}}"], "path": ["api", "auth", "logout"]},
+				"description": "Intenta hacer logout con un token que no es un JWT válido. El sistema debe rechazar la petición.\n\n**Endpoint:** POST /api/auth/logout\n**Body:** refreshToken: invalid_token\n**Respuesta esperada:** Status 400 o 401 — token inválido"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 400 or 401\", function () { pm.expect(pm.response.code).to.be.oneOf([400, 401]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-16-05: Gateway validación token - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}
+				],
+				"url": {"raw": "{{base_url}}/api/customers?page=0&size=1", "host": ["{{base_url}}"], "path": ["api", "customers"], "query": [
+					{"key": "page", "value": "0"},
+					{"key": "size", "value": "1"}
+				]},
+				"description": "Verifica que el gateway valida correctamente un token JWT válido y permite el acceso al endpoint protegido.\n\n**Endpoint:** GET /api/customers\n**Header:** Authorization: Bearer {{auth_token}} (token válido)\n**Respuesta esperada:** Status 200 — acceso concedido\n**Importancia:** Contrapositivo — confirma que los tokens válidos sí funcionan."
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		}
+	]
+}

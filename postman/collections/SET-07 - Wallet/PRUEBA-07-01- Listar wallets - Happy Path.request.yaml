@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PRUEBA-07-01: Listar wallets - Happy Path'
+order: 1000
+method: GET
+url: '{{base_url}}/api/wallets'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'

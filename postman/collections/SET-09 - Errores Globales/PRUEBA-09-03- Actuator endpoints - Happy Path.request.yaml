@@ -1,0 +1,9 @@
+$kind: http-request
+name: 'PRUEBA-09-03: Actuator endpoints - Happy Path'
+order: 3000
+method: GET
+url: '{{base_url}}/actuator'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'

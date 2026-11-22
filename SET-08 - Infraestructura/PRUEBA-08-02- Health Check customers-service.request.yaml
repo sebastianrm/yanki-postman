@@ -1,0 +1,11 @@
+$kind: http-request
+name: "PRUEBA-08-02: Health Check customers-service"
+description: |-
+  Verifica directamente el microservicio de clientes (customers-service) en su puerto nativo 8082, sin pasar por el API Gateway. Esto confirma que el servicio está corriendo independientemente.
+
+  **Endpoint:** GET /actuator/health (directo al puerto 8082)
+  **Respuesta esperada:** Status 200 con body {"status": "UP"}
+  **Importancia:** Validación directa del servicio — descarta problemas de enrutamiento del gateway.
+url: http://localhost:8082/actuator/health
+method: GET
+order: 2000

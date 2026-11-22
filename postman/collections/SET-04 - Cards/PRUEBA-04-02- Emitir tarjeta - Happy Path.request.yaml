@@ -1,0 +1,25 @@
+$kind: http-request
+name: 'PRUEBA-04-02: Emitir tarjeta - Happy Path'
+order: 2000
+method: POST
+url: '{{base_url}}/api/cards'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "customerId": "{{customer_id}}",
+        "type": "CREDIT",
+        "subtype": "PERSONAL",
+        "creditLimit": 5000.0
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () { pm.response.to.have.status(201); });
+      pm.test("Response has cardId", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.have.property("cardId"); pm.collectionVariables.set("card_id", jsonData.cardId); });

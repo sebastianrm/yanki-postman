@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'PRUEBA-13-03: Reembolso no encontrado - Negative'
+order: 3000
+method: POST
+url: '{{base_url}}/api/cards/{{card_id}}/consumptions/000000000000000000000000/refund'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 404 or 409", function () { pm.expect(pm.response.code).to.be.oneOf([404, 409]); });'

@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PRUEBA-10-03: Reporte cliente 360° - Happy Path'
+order: 3000
+method: GET
+url: '{{base_url}}/api/reports/customer-360/{{customer_id}}'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'

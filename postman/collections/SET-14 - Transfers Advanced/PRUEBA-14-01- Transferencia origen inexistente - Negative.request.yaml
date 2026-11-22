@@ -1,0 +1,23 @@
+$kind: http-request
+name: 'PRUEBA-14-01: Transferencia origen inexistente - Negative'
+order: 1000
+method: POST
+url: '{{base_url}}/api/transfers'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "sourceAccountId": "000000000000000000000000",
+        "destAccountId": "111111111111111111111111",
+        "amount": 50.0,
+        "description": "Origen inexistente"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 400 or 404", function () { pm.expect(pm.response.code).to.be.oneOf([400, 404]); });'

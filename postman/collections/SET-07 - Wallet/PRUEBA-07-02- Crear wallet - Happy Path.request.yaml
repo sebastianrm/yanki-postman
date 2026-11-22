@@ -1,0 +1,29 @@
+$kind: http-request
+name: 'PRUEBA-07-02: Crear wallet - Happy Path'
+order: 2000
+method: POST
+url: '{{base_url}}/api/wallets'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "documentType": "DNI",
+        "documentNumber": "70888123",
+        "phone": "+51999888777",
+        "imei": "353456789012345",
+        "email": "wallet.test@test.com",
+        "firstName": "Juan",
+        "lastName": "Perez",
+        "birthDate": "1990-01-01"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status code is 201", function () { pm.response.to.have.status(201); });
+      pm.test("Response has walletId", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.have.property("walletId"); pm.collectionVariables.set("wallet_id", jsonData.walletId); });

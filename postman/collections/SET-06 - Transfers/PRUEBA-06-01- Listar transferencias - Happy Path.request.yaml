@@ -1,0 +1,15 @@
+$kind: http-request
+name: 'PRUEBA-06-01: Listar transferencias - Happy Path'
+order: 1000
+method: GET
+url: '{{base_url}}/api/transfers?customerId={{customer_id}}'
+queryParams:
+  - key: customerId
+    value: '{{customer_id}}'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'

@@ -1,0 +1,36 @@
+$kind: collection
+name: 'SET-11 - VIP/PYME'
+description: |-
+  Validaciones transversales de perfiles VIP y PYME.
+
+  **Naturaleza:** Pruebas de reglas de negocio específicas para perfiles VIP y PYME: validaciones de actualización de cliente, restricciones de tipo de cuenta y validaciones de montos.
+
+  **Objetivo:** Verificar que las reglas de negocio transversales se aplican correctamente: VIP requiere tarjeta de crédito, PYME solo en clientes ENTERPRISE, status DELETED no permitido, montos negativos rechazados.
+
+  **Orden de ejecución:** Después de SET-02 (Customers) y SET-04 (Cards).
+
+  **Reglas de negocio:**
+  - VIP: Requiere al menos una tarjeta de crédito activa
+  - PYME: Solo aplicable a clientes tipo ENTERPRISE
+  - Status DELETED: No se puede cambiar manualmente
+  - Montos negativos: No permitidos en cuentas
+
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-11)
+  - Documentación: `pruebas_integrales/SET-11-VIP-PYME.md`
+  - Casos de prueba: CP-128 a CP-130
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+  - key: auth_token
+    value: ''
+  - key: customer_id
+    value: ''
+  - key: account_id
+    value: ''
+  - key: card_id
+    value: ''
+  - key: credit_id
+    value: ''
+  - key: wallet_id
+    value: ''

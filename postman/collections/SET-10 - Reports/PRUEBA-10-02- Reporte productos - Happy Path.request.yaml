@@ -1,0 +1,17 @@
+$kind: http-request
+name: 'PRUEBA-10-02: Reporte productos - Happy Path'
+order: 2000
+method: GET
+url: '{{base_url}}/api/reports/products?from=2024-01-01&to=2024-12-31'
+queryParams:
+  - key: from
+    value: 2024-01-01
+  - key: to
+    value: 2024-12-31
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'

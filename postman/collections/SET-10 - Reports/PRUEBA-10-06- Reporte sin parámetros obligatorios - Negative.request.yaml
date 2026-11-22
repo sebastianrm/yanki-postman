@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PRUEBA-10-06: Reporte sin parámetros obligatorios - Negative'
+order: 6000
+method: GET
+url: '{{base_url}}/api/reports/aggregated'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 400", function () { pm.response.to.have.status(400); });'

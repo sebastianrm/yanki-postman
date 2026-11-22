@@ -1,0 +1,58 @@
+{
+	"info": {
+		"_postman_id": "8a001001-0001-0009-0000-000000000009",
+		"name": "SET-09 - Errores Globales",
+		"description": "Validación de errores globales del API Gateway.\n\n**Naturaleza:** Pruebas de manejo de errores a nivel de infraestructura: rutas inexistentes (404), métodos HTTP no permitidos (405) y endpoints de actuator.\n\n**Objetivo:** Verificar que el API Gateway maneja correctamente los errores HTTP estándar antes de que las peticiones lleguen a los microservicios.\n\n**Orden de ejecución:** Puede ejecutarse en cualquier momento después de SET-08.\n\n**Referencias:**\n- Script: `pruebas_integrales/run-tests.ps1` (SET-09)\n- Documentación: `pruebas_integrales/SET-09-ERRORES-GLOBALES.md`\n- Casos de prueba: CP-170 a CP-172",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"variable": [
+			{"key": "base_url", "value": "http://localhost:8080", "type": "string"},
+			{"key": "auth_token", "value": "", "type": "string"},
+			{"key": "customer_id", "value": "", "type": "string"},
+			{"key": "account_id", "value": "", "type": "string"},
+			{"key": "card_id", "value": "", "type": "string"},
+			{"key": "credit_id", "value": "", "type": "string"},
+			{"key": "wallet_id", "value": "", "type": "string"}
+		]
+	},
+	"item": [
+		{
+			"name": "PRUEBA-09-01: Ruta inexistente - Negative",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/nonexistent", "host": ["{{base_url}}"], "path": ["api", "nonexistent"]},
+				"description": "Accede a una ruta que no está configurada en el API Gateway. El gateway debe retornar 404 Not Found sin intentar enrutar a ningún microservicio.\n\n**Endpoint:** GET /api/nonexistent\n**Respuesta esperada:** Status 404 Not Found\n**Importancia:** El gateway no debe exponer información interna cuando se accede a rutas inexistentes."
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-09-02: Método no permitido - Negative",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {"raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"]},
+				"description": "Envía un método HTTP DELETE a un endpoint que solo acepta POST (login). El gateway o el servicio deben retornar 405 Method Not Allowed.\n\n**Endpoint:** DELETE /api/auth/login\n**Respuesta esperada:** Status 405 Method Not Allowed\n**Importancia:** Seguridad — los métodos HTTP incorrectos deben ser rechazados explícitamente."
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 405\", function () { pm.response.to.have.status(405); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-09-03: Actuator endpoints - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {"raw": "{{base_url}}/actuator", "host": ["{{base_url}}"], "path": ["actuator"]},
+				"description": "Lista los endpoints de Spring Boot Actuator disponibles en el API Gateway. Estos endpoints proporcionan información de salud, métricas y configuración.\n\n**Endpoint:** GET /actuator\n**Respuesta esperada:** Status 200 con lista de actuator endpoints disponibles\n**Importancia:** Confirmación de que los endpoints de monitoreo están accesibles."
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		}
+	]
+}

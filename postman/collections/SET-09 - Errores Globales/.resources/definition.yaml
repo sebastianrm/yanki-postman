@@ -1,0 +1,37 @@
+$kind: collection
+name: SET-09 - Errores Globales
+description: |-
+  Validación de errores globales del API Gateway.
+  
+  **Naturaleza:** Pruebas de manejo de errores a nivel de infraestructura: rutas inexistentes (404), métodos HTTP no permitidos (405) y endpoints de actuator.
+  
+  **Objetivo:** Verificar que el API Gateway maneja correctamente los errores HTTP estándar antes de que las peticiones lleguen a los microservicios.
+  
+  **Orden de ejecución:** Puede ejecutarse en cualquier momento después de SET-08.
+  
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-09)
+  - Documentación: `pruebas_integrales/SET-09-ERRORES-GLOBALES.md`
+  - Casos de prueba: CP-170 a CP-172
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+    type: string
+  - key: auth_token
+    value: ''
+    type: string
+  - key: customer_id
+    value: ''
+    type: string
+  - key: account_id
+    value: ''
+    type: string
+  - key: card_id
+    value: ''
+    type: string
+  - key: credit_id
+    value: ''
+    type: string
+  - key: wallet_id
+    value: ''
+    type: string

@@ -1,0 +1,49 @@
+{
+	"info": {
+		"_postman_id": "8a001001-0001-0006-0000-000000000006",
+		"name": "SET-06 - Transfers",
+		"description": "Transferencias entre cuentas de la plataforma Yanki.\n\n**Naturaleza:** Pruebas básicas del ciclo de transferencias: listado por cliente y validación de cuenta destino inexistente.\n\n**Objetivo:** Validar que el transfers-service permite consultar transferencias y que las transferencias a cuentas inexistentes son rechazadas.\n\n**Orden de ejecución:** Después de SET-03 (Accounts), ya que requiere account_id válido.\n\n**Referencias:**\n- Script: `pruebas_integrales/run-tests.ps1` (SET-06)\n- Documentación: `pruebas_integrales/SET-06-TRANSFERS.md`\n- Casos de prueba: CP-050 a CP-057",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"variable": [
+			{"key": "base_url", "value": "http://localhost:8080", "type": "string"},
+			{"key": "auth_token", "value": "", "type": "string"},
+			{"key": "customer_id", "value": "", "type": "string"},
+			{"key": "account_id", "value": "", "type": "string"},
+			{"key": "card_id", "value": "", "type": "string"},
+			{"key": "credit_id", "value": "", "type": "string"},
+			{"key": "wallet_id", "value": "", "type": "string"}
+		]
+	},
+	"item": [
+		{
+			"name": "PRUEBA-06-01: Listar transferencias - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/transfers?customerId={{customer_id}}", "host": ["{{base_url}}"], "path": ["api", "transfers"], "query": [{"key": "customerId", "value": "{{customer_id}}"}]},
+				"description": "Lista todas las transferencias de un cliente específico. Endpoint de consulta principal.\n\n**Endpoint:** GET /api/transfers?customerId={id}\n**Respuesta esperada:** Status 200 con array de transferencias (puede estar vacío)"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-06-02: Transferencia cuenta destino inexistente - Negative",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"sourceAccountId\": \"{{account_id}}\",\n    \"destinationAccountId\": \"000000000000000000000000\",\n    \"amount\": 50.0,\n    \"description\": \"Transferencia prueba\"\n}"},
+				"url": {"raw": "{{base_url}}/api/transfers", "host": ["{{base_url}}"], "path": ["api", "transfers"]},
+				"description": "Intenta transferir S/50 desde una cuenta válida a una cuenta destino que no existe. El sistema debe validar la existencia de ambas cuentas antes de ejecutar.\n\n**Endpoint:** POST /api/transfers\n**Body:** sourceAccountId (válido), destinationAccountId (falso), amount: 50.0\n**Respuesta esperada:** Status 400 o 404 — cuenta destino no encontrada\n**Importancia:** Seguridad financiera — no se puede transferir a una cuenta que no existe."
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 400 or 404\", function () { pm.expect(pm.response.code).to.be.oneOf([400, 404]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,11 @@
+$kind: http-request
+name: "PRUEBA-08-01: Health Check API Gateway"
+description: |-
+  Verifica que el API Gateway (Spring Cloud Gateway) está operativo y responde con status UP. Este es el punto de entrada único de toda la plataforma Yanki; si no responde, ningún otro servicio es accesible a través del gateway.
+
+  **Endpoint:** GET /actuator/health
+  **Respuesta esperada:** Status 200 con body {"status": "UP"}
+  **Importancia:** Validación crítica — sin gateway, toda la plataforma es inaccesible.
+url: "{{base_url}}/actuator/health"
+method: GET
+order: 1000

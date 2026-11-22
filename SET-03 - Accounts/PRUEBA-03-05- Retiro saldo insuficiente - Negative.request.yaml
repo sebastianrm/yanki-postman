@@ -1,0 +1,29 @@
+$kind: http-request
+name: "PRUEBA-03-05: Retiro saldo insuficiente - Negative"
+description: |-
+  Intenta retirar un monto muy superior al saldo disponible (S/999,999,999). El sistema debe detectar saldo insuficiente y rechazar la operación.
+
+  **Endpoint:** POST /api/accounts/{id}/withdrawals
+  **Body:** amount: 999999999.0 (monto imposible)
+  **Respuesta esperada:** Status 400 Bad Request o 422 Unprocessable Entity
+  **Importancia:** Regla de negocio crítica — un banco no puede permitir retiros que excedan el saldo.
+url: "{{base_url}}/api/accounts/{{account_id}}/withdrawals"
+method: POST
+headers:
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "amount": 999999999.0,
+        "description": "Retiro saldo insuficiente"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 400 or 422", function () {
+          pm.expect(pm.response.code).to.be.oneOf([400, 422]);
+      });
+    language: text/javascript
+order: 5000

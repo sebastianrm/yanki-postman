@@ -1,0 +1,20 @@
+$kind: http-request
+name: 'PRUEBA-11-02: PYME en cliente PERSONAL - Negative'
+order: 2000
+method: PUT
+url: '{{base_url}}/api/customers/{{customer_id}}'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "profile": "PYME"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 422", function () { pm.response.to.have.status(422); });'

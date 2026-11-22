@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PRUEBA-05-03: Crédito inexistente - Negative'
+order: 3000
+method: GET
+url: '{{base_url}}/api/credits/000000000000000000000000'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 404", function () { pm.response.to.have.status(404); });'

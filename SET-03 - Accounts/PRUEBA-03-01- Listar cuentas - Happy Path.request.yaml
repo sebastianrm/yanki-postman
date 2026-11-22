@@ -1,0 +1,21 @@
+$kind: http-request
+name: "PRUEBA-03-01: Listar cuentas - Happy Path"
+description: |-
+  Lista todas las cuentas bancarias del sistema. Endpoint de consulta principal para verificar el estado actual.
+
+  **Endpoint:** GET /api/accounts
+  **Header:** Authorization: Bearer {{auth_token}}
+  **Respuesta esperada:** Status 200 con array de cuentas (puede estar vacío en ambiente limpio)
+  **Importancia:** Validación de lectura — confirma que el servicio responde correctamente.
+url: "{{base_url}}/api/accounts"
+method: GET
+headers:
+  Authorization: Bearer {{auth_token}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+    language: text/javascript
+order: 1000

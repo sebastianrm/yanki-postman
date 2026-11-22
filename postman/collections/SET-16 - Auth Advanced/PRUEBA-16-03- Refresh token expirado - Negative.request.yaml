@@ -1,0 +1,18 @@
+$kind: http-request
+name: 'PRUEBA-16-03: Refresh token expirado - Negative'
+order: 3000
+method: POST
+url: '{{base_url}}/api/auth/refresh'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "refreshToken": "eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDAwMDAwMDB9.expired"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 401", function () { pm.response.to.have.status(401); });'

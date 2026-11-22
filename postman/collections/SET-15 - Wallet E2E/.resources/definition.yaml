@@ -1,0 +1,37 @@
+$kind: collection
+name: SET-15 - Wallet E2E
+description: |-
+  Flujo integral del wallet digital.
+  
+  **Naturaleza:** Pruebas end-to-end del wallet: verificación de wallet existente, pagos P2P a destino inexistente y retiros con saldo insuficiente.
+  
+  **Objetivo:** Validar las operaciones del wallet digital en escenarios de error: P2P a teléfono no registrado y retiro excediendo el saldo.
+  
+  **Orden de ejecución:** Después de SET-07 (Wallet), ya que requiere un wallet_id válido.
+  
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-15)
+  - Documentación: `pruebas_integrales/SET-15-WALLET-E2E.md`
+  - Casos de prueba: CP-156, CP-161, CP-186
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+    type: string
+  - key: auth_token
+    value: ''
+    type: string
+  - key: customer_id
+    value: ''
+    type: string
+  - key: account_id
+    value: ''
+    type: string
+  - key: card_id
+    value: ''
+    type: string
+  - key: credit_id
+    value: ''
+    type: string
+  - key: wallet_id
+    value: ''
+    type: string

@@ -1,0 +1,28 @@
+$kind: http-request
+name: "PRUEBA-01-03: Login credenciales inválidas - Negative"
+description: |-
+  Intento de login con usuario válido pero contraseña incorrecta. El sistema debe rechazar la autenticación y retornar 401 Unauthorized sin exponer información sobre el usuario.
+
+  **Endpoint:** POST /api/auth/login
+  **Body:** {"username": "admin@yanki.com", "password": "wrongpassword"}
+  **Respuesta esperada:** Status 401 Unauthorized
+  **Importancia:** Seguridad crítica — el sistema no debe permitir acceso con credenciales incorrectas.
+url: "{{base_url}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "username": "admin@yanki.com",
+        "password": "wrongpassword"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 401", function () {
+          pm.response.to.have.status(401);
+      });
+    language: text/javascript
+order: 3000

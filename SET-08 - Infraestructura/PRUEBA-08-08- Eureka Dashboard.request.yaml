@@ -1,0 +1,11 @@
+$kind: http-request
+name: "PRUEBA-08-08: Eureka Dashboard"
+description: |-
+  Verifica que el dashboard web de Eureka Server es accesible. En este entorno de pruebas, el dashboard no tiene Basic Auth configurado, por lo que responde con 200. En producción, típicamente responde con 401 (requiere autenticación).
+
+  **Endpoint:** GET / (raíz de Eureka)
+  **Respuesta esperada:** Status 200 (sin auth) o 401 (con auth configurado)
+  **Importancia:** Confirmación visual de que Eureka está corriendo y accesible.
+url: "{{eureka_url}}/"
+method: GET
+order: 6000

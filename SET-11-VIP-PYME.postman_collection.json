@@ -1,0 +1,134 @@
+{
+	"info": {
+		"_postman_id": "8a001001-0001-0011-0000-000000000011",
+		"name": "SET-11 - VIP/PYME",
+		"description": "Validaciones transversales de perfiles VIP y PYME.\n\n**Naturaleza:** Pruebas de reglas de negocio específicas para perfiles VIP y PYME: validaciones de actualización de cliente, restricciones de tipo de cuenta y validaciones de montos.\n\n**Objetivo:** Verificar que las reglas de negocio transversales se aplican correctamente: VIP requiere tarjeta de crédito, PYME solo en clientes ENTERPRISE, status DELETED no permitido, montos negativos rechazados.\n\n**Orden de ejecución:** Después de SET-02 (Customers) y SET-04 (Cards).\n\n**Reglas de negocio:**\n- VIP: Requiere al menos una tarjeta de crédito activa\n- PYME: Solo aplicable a clientes tipo ENTERPRISE\n- Status DELETED: No se puede cambiar manualmente\n- Montos negativos: No permitidos en cuentas\n\n**Referencias:**\n- Script: `pruebas_integrales/run-tests.ps1` (SET-11)\n- Documentación: `pruebas_integrales/SET-11-VIP-PYME.md`\n- Casos de prueba: CP-128 a CP-130",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"variable": [
+			{"key": "base_url", "value": "http://localhost:8080", "type": "string"},
+			{"key": "auth_token", "value": "", "type": "string"},
+			{"key": "customer_id", "value": "", "type": "string"},
+			{"key": "account_id", "value": "", "type": "string"},
+			{"key": "card_id", "value": "", "type": "string"},
+			{"key": "credit_id", "value": "", "type": "string"},
+			{"key": "wallet_id", "value": "", "type": "string"}
+		]
+	},
+	"item": [
+		{
+			"name": "PRUEBA-11-01: VIP sin tarjeta crédito - Negative",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"profile\": \"VIP\"\n}"},
+				"url": {"raw": "{{base_url}}/api/customers/{{customer_id}}", "host": ["{{base_url}}"], "path": ["api", "customers", "{{customer_id}}"]},
+				"description": "Intenta actualizar un cliente PERSONAL STANDARD a perfil VIP sin tener tarjeta de crédito. El sistema debe rechazar porque VIP requiere al menos una tarjeta de crédito activa.\n\n**Endpoint:** PUT /api/customers/{id}\n**Body:** {\"profile\": \"VIP\"}\n**Respuesta esperada:** Status 422 — VIP requiere tarjeta de crédito"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 422\", function () { pm.response.to.have.status(422); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-11-02: PYME en cliente PERSONAL - Negative",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"profile\": \"PYME\"\n}"},
+				"url": {"raw": "{{base_url}}/api/customers/{{customer_id}}", "host": ["{{base_url}}"], "path": ["api", "customers", "{{customer_id}}"]},
+				"description": "Intenta asignar perfil PYME a un cliente PERSONAL. El perfil PYME solo es válido para clientes tipo ENTERPRISE.\n\n**Endpoint:** PUT /api/customers/{id}\n**Body:** {\"profile\": \"PYME\"}\n**Respuesta esperada:** Status 422 — PYME solo para ENTERPRISE"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 422\", function () { pm.response.to.have.status(422); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-11-03: Status DELETED - Negative",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"status\": \"DELETED\"\n}"},
+				"url": {"raw": "{{base_url}}/api/customers/{{customer_id}}", "host": ["{{base_url}}"], "path": ["api", "customers", "{{customer_id}}"]},
+				"description": "Intenta cambiar manualmente el estado de un cliente a DELETED. Este estado no se puede asignar directamente vía API.\n\n**Endpoint:** PUT /api/customers/{id}\n**Body:** {\"status\": \"DELETED\"}\n**Respuesta esperada:** Status 422 — status DELETED no permitido"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 422\", function () { pm.response.to.have.status(422); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-11-04: Cuenta cliente inexistente - Negative",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"customerId\": \"000000000000000000000000\",\n    \"accountType\": \"SAVINGS\",\n    \"initialAmount\": 100.0,\n    \"currency\": \"PEN\"\n}"},
+				"url": {"raw": "{{base_url}}/api/accounts", "host": ["{{base_url}}"], "path": ["api", "accounts"]},
+				"description": "Intenta abrir una cuenta para un cliente que no existe. El sistema debe validar la existencia del cliente.\n\n**Endpoint:** POST /api/accounts\n**Body:** customerId falso, accountType: SAVINGS\n**Respuesta esperada:** Status 400 o 404 — cliente no encontrado"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 400 or 404\", function () { pm.expect(pm.response.code).to.be.oneOf([400, 404]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-11-05: Cuenta monto negativo - Negative",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"customerId\": \"{{customer_id}}\",\n    \"accountType\": \"SAVINGS\",\n    \"initialAmount\": -100.0,\n    \"currency\": \"PEN\"\n}"},
+				"url": {"raw": "{{base_url}}/api/accounts", "host": ["{{base_url}}"], "path": ["api", "accounts"]},
+				"description": "Intenta abrir una cuenta con un monto inicial negativo. Los montos deben ser positivos.\n\n**Endpoint:** POST /api/accounts\n**Body:** initialAmount: -100.0\n**Respuesta esperada:** Status 400 o 422 — monto negativo no permitido"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 400 or 422\", function () { pm.expect(pm.response.code).to.be.oneOf([400, 422]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-11-06: Cuenta tipo inválido - Negative",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"customerId\": \"{{customer_id}}\",\n    \"accountType\": \"INVALID_TYPE\",\n    \"initialAmount\": 100.0,\n    \"currency\": \"PEN\"\n}"},
+				"url": {"raw": "{{base_url}}/api/accounts", "host": ["{{base_url}}"], "path": ["api", "accounts"]},
+				"description": "Intenta abrir una cuenta con un tipo que no existe en el enum AccountType. Solo SAVINGS, CURRENT y FIXED_TERM son válidos.\n\n**Endpoint:** POST /api/accounts\n**Body:** accountType: INVALID_TYPE\n**Respuesta esperada:** Status 400 o 422 — tipo de cuenta inválido"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 400 or 422\", function () { pm.expect(pm.response.code).to.be.oneOf([400, 422]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-11-07: Consulta cliente por ID - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/customers/{{customer_id}}", "host": ["{{base_url}}"], "path": ["api", "customers", "{{customer_id}}"]},
+				"description": "Consulta un cliente existente por su ID para verificar que las actualizaciones anteriores no lo afectaron negativamente.\n\n**Endpoint:** GET /api/customers/{id}\n**Respuesta esperada:** Status 200 con datos del cliente"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		}
+	]
+}

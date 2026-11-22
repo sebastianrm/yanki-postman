@@ -1,0 +1,23 @@
+$kind: http-request
+name: 'PRUEBA-14-02: Transferencia misma cuenta - Negative'
+order: 2000
+method: POST
+url: '{{base_url}}/api/transfers'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "sourceAccountId": "{{account_id}}",
+        "destAccountId": "{{account_id}}",
+        "amount": 50.0,
+        "description": "Misma cuenta"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 400", function () { pm.response.to.have.status(400); });'

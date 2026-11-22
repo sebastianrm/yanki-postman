@@ -1,0 +1,20 @@
+$kind: http-request
+name: 'PRUEBA-12-04: Reestructuración crédito - Happy Path'
+order: 4000
+method: PUT
+url: '{{base_url}}/api/credits/{{credit_id}}'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "interestRate": 10.5
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'

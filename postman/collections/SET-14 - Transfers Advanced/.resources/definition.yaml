@@ -1,0 +1,37 @@
+$kind: collection
+name: SET-14 - Transfers Advanced
+description: |-
+  Validaciones avanzadas de transferencias.
+  
+  **Naturaleza:** Pruebas de validaciones de negocio en transferencias: origen inexistente y transferencia a la misma cuenta.
+  
+  **Objetivo:** Verificar que el transfers-service valida correctamente las cuentas origen y destino antes de ejecutar transferencias.
+  
+  **Orden de ejecución:** Después de SET-03 (Accounts), ya que requiere account_id válido.
+  
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-14)
+  - Documentación: `pruebas_integrales/SET-14-TRANSFERS-ADVANCED.md`
+  - Casos de prueba: CP-059, CP-068
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+    type: string
+  - key: auth_token
+    value: ''
+    type: string
+  - key: customer_id
+    value: ''
+    type: string
+  - key: account_id
+    value: ''
+    type: string
+  - key: card_id
+    value: ''
+    type: string
+  - key: credit_id
+    value: ''
+    type: string
+  - key: wallet_id
+    value: ''
+    type: string

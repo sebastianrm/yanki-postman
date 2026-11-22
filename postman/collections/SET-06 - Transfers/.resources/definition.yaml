@@ -1,0 +1,37 @@
+$kind: collection
+name: SET-06 - Transfers
+description: |-
+  Transferencias entre cuentas de la plataforma Yanki.
+  
+  **Naturaleza:** Pruebas básicas del ciclo de transferencias: listado por cliente y validación de cuenta destino inexistente.
+  
+  **Objetivo:** Validar que el transfers-service permite consultar transferencias y que las transferencias a cuentas inexistentes son rechazadas.
+  
+  **Orden de ejecución:** Después de SET-03 (Accounts), ya que requiere account_id válido.
+  
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-06)
+  - Documentación: `pruebas_integrales/SET-06-TRANSFERS.md`
+  - Casos de prueba: CP-050 a CP-057
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+    type: string
+  - key: auth_token
+    value: ''
+    type: string
+  - key: customer_id
+    value: ''
+    type: string
+  - key: account_id
+    value: ''
+    type: string
+  - key: card_id
+    value: ''
+    type: string
+  - key: credit_id
+    value: ''
+    type: string
+  - key: wallet_id
+    value: ''
+    type: string

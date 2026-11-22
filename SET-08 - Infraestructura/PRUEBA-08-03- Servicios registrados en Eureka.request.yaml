@@ -1,0 +1,15 @@
+$kind: http-request
+name: "PRUEBA-08-03: Servicios registrados en Eureka"
+description: |-
+  Verifica que al menos 8 microservicios están registrados y activos en Eureka Server (Service Discovery). Eureka es el corazón del descubrimiento de servicios: sin registros correctos, el gateway no puede enrutar las peticiones.
+
+  **Endpoint:** GET /eureka/apps
+  **Header requerido:** Accept: application/json (Eureka devuelve XML por defecto)
+  **Respuesta esperada:** Status 200 con al menos 8 servicios en la lista
+  **Servicios esperados:** auth-service, customers-service, accounts-service, credits-service, cards-service, transfers-service, wallet-service, reports-service, api-gateway, config-server
+  **Importancia:** Si hay menos de 8 servicios, algunos endpoints no estarán disponibles.
+url: "{{eureka_url}}/eureka/apps"
+method: GET
+headers:
+  Accept: application/json
+order: 3000

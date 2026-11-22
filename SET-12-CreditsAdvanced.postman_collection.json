@@ -1,0 +1,139 @@
+{
+	"info": {
+		"_postman_id": "8a001001-0001-0012-0000-000000000012",
+		"name": "SET-12 - Credits Advanced",
+		"description": "Operaciones avanzadas de créditos.\n\n**Naturaleza:** Pruebas avanzadas del ciclo de créditos: consulta por ID, pagos, reestructuración, cancelación, cronograma de pagos e historial.\n\n**Objetivo:** Validar todas las operaciones post-creación de un crédito: pagos parciales, reestructuración de tasa, cancelación, consulta de cronograma e historial de pagos.\n\n**Orden de ejecución:** Después de SET-05 (Credits), ya que requiere un credit_id válido.\n\n**Referencias:**\n- Script: `pruebas_integrales/run-tests.ps1` (SET-12)\n- Documentación: `pruebas_integrales/SET-12-CREDITS-ADVANCED.md`\n- Casos de prueba: CP-078 a CP-195",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"variable": [
+			{"key": "base_url", "value": "http://localhost:8080", "type": "string"},
+			{"key": "auth_token", "value": "", "type": "string"},
+			{"key": "customer_id", "value": "", "type": "string"},
+			{"key": "account_id", "value": "", "type": "string"},
+			{"key": "card_id", "value": "", "type": "string"},
+			{"key": "credit_id", "value": "", "type": "string"},
+			{"key": "wallet_id", "value": "", "type": "string"}
+		]
+	},
+	"item": [
+		{
+			"name": "PRUEBA-12-01: Consulta crédito por ID - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/credits/{{credit_id}}", "host": ["{{base_url}}"], "path": ["api", "credits", "{{credit_id}}"]},
+				"description": "Consulta el detalle completo de un crédito existente por su ID.\n\n**Endpoint:** GET /api/credits/{id}\n**Respuesta esperada:** Status 200 con datos del crédito"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-12-02: Pago de crédito - Happy Path",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"amount\": 500.0,\n    \"description\": \"Pago de cuota\"\n}"},
+				"url": {"raw": "{{base_url}}/api/credits/{{credit_id}}/payments", "host": ["{{base_url}}"], "path": ["api", "credits", "{{credit_id}}", "payments"]},
+				"description": "Realiza un pago parcial de S/500 al crédito. El pago reduce el saldo pendiente y genera un registro en el historial.\n\n**Endpoint:** POST /api/credits/{id}/payments\n**Body:** amount: 500.0, description\n**Respuesta esperada:** Status 200 o 201 con confirmación del pago"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200 or 201\", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-12-03: Pago monto cero - Negative",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"amount\": 0.0,\n    \"description\": \"Pago cero\"\n}"},
+				"url": {"raw": "{{base_url}}/api/credits/{{credit_id}}/payments", "host": ["{{base_url}}"], "path": ["api", "credits", "{{credit_id}}", "payments"]},
+				"description": "Intenta realizar un pago de monto cero. Los pagos deben ser mayores a cero.\n\n**Endpoint:** POST /api/credits/{id}/payments\n**Body:** amount: 0.0\n**Respuesta esperada:** Status 400 o 422 — monto cero no permitido"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 400 or 422\", function () { pm.expect(pm.response.code).to.be.oneOf([400, 422]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-12-04: Reestructuración crédito - Happy Path",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"interestRate\": 10.5\n}"},
+				"url": {"raw": "{{base_url}}/api/credits/{{credit_id}}", "host": ["{{base_url}}"], "path": ["api", "credits", "{{credit_id}}"]},
+				"description": "Reestructura la tasa de interés del crédito a 10.5%. La reestructuración recalcula el cronograma de pagos.\n\n**Endpoint:** PUT /api/credits/{id}\n**Body:** {\"interestRate\": 10.5}\n**Respuesta esperada:** Status 200 con crédito actualizado"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-12-05: Reestructuración tasa inválida - Negative",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"interestRate\": 60.0\n}"},
+				"url": {"raw": "{{base_url}}/api/credits/{{credit_id}}", "host": ["{{base_url}}"], "path": ["api", "credits", "{{credit_id}}"]},
+				"description": "Intenta reestructurar con una tasa de interés superior al máximo permitido (60%). El sistema debe validar el rango.\n\n**Endpoint:** PUT /api/credits/{id}\n**Body:** {\"interestRate\": 60.0}\n**Respuesta esperada:** Status 400 — tasa fuera de rango"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-12-06: Cancelación crédito - Happy Path",
+			"request": {
+				"method": "DELETE",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/credits/{{credit_id}}", "host": ["{{base_url}}"], "path": ["api", "credits", "{{credit_id}}"]},
+				"description": "Cancela (elimina) un crédito existente. Después de esta operación, el crédito ya no está activo.\n\n**Endpoint:** DELETE /api/credits/{id}\n**Respuesta esperada:** Status 200 — crédito cancelado\n**Nota:** Después de esta prueba, credit_id ya no es válido."
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-12-07: Cronograma de pagos - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/credits/{{credit_id}}/schedule", "host": ["{{base_url}}"], "path": ["api", "credits", "{{credit_id}}", "schedule"]},
+				"description": "Obtiene el cronograma de pagos del crédito: fechas, montos y saldos de cada cuota.\n\n**Endpoint:** GET /api/credits/{id}/schedule\n**Respuesta esperada:** Status 200 con lista de cuotas programadas"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-12-08: Historial de pagos - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/credits/{{credit_id}}/payments", "host": ["{{base_url}}"], "path": ["api", "credits", "{{credit_id}}", "payments"]},
+				"description": "Obtiene el historial completo de pagos realizados al crédito.\n\n**Endpoint:** GET /api/credits/{id}/payments\n**Respuesta esperada:** Status 200 con lista de pagos"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		}
+	]
+}

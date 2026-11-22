@@ -1,0 +1,27 @@
+$kind: http-request
+name: "PRUEBA-02-04: Consultar cliente por ID - Happy Path"
+description: |-
+  Consulta los detalles completos de un cliente existente por su ID. Verifica que la creación del cliente fue exitosa y que los datos se almacenaron correctamente.
+
+  **Endpoint:** GET /api/customers/{id}
+  **Header:** Authorization: Bearer {{auth_token}}
+  **Respuesta esperada:** Status 200 con todos los campos del cliente
+  **Importancia:** Validación de lectura — confirma que el cliente creado en PRUEBA-02-02 es recuperable.
+  **Nota:** Requiere que customer_id esté poblado (ejecutar PRUEBA-02-02 primero).
+url: "{{base_url}}/api/customers/{{customer_id}}"
+method: GET
+headers:
+  Authorization: Bearer {{auth_token}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response customerId matches", function () {
+          var jsonData = pm.response.json();
+          pm.expect(jsonData.customerId).to.eql(pm.collectionVariables.get("customer_id"));
+      });
+    language: text/javascript
+order: 4000

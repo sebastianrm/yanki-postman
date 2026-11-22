@@ -1,0 +1,62 @@
+{
+	"info": {
+		"_postman_id": "8a001001-0001-0005-0000-000000000005",
+		"name": "SET-05 - Credits",
+		"description": "Gestión de créditos activos (personal y empresarial) de la plataforma Yanki.\n\n**Naturaleza:** Pruebas básicas del ciclo de créditos: listado, solicitud de nuevo crédito y consulta de crédito inexistente.\n\n**Objetivo:** Validar que el credits-service permite solicitar créditos vinculados a un cliente, con scoring automático, y que los créditos inexistentes retornan 404.\n\n**Orden de ejecución:** Después de SET-02 (Customers), ya que requiere un customer_id válido.\n\n**Tipos de crédito:**\n- PERSONAL: Crédito personal (monto menor, sin garantía)\n- ENTERPRISE: Crédito empresarial (monto mayor, con garantía)\n\n**Referencias:**\n- Script: `pruebas_integrales/run-tests.ps1` (SET-05)\n- Documentación: `pruebas_integrales/SET-05-CREDITS.md`\n- Casos de prueba: CP-058 a CP-065",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"variable": [
+			{"key": "base_url", "value": "http://localhost:8080", "type": "string"},
+			{"key": "auth_token", "value": "", "type": "string"},
+			{"key": "customer_id", "value": "", "type": "string"},
+			{"key": "account_id", "value": "", "type": "string"},
+			{"key": "card_id", "value": "", "type": "string"},
+			{"key": "credit_id", "value": "", "type": "string"},
+			{"key": "wallet_id", "value": "", "type": "string"}
+		]
+	},
+	"item": [
+		{
+			"name": "PRUEBA-05-01: Listar créditos - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/credits", "host": ["{{base_url}}"], "path": ["api", "credits"]},
+				"description": "Lista todos los créditos del sistema. Endpoint de consulta principal.\n\n**Endpoint:** GET /api/credits\n**Respuesta esperada:** Status 200 con array de créditos (puede estar vacío)"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-05-02: Solicitar crédito - Happy Path",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"},
+					{"key": "Content-Type", "value": "application/json", "type": "text"}
+				],
+				"body": {"mode": "raw", "raw": "{\n    \"customerId\": \"{{customer_id}}\",\n    \"type\": \"PERSONAL\",\n    \"amount\": 1000.0,\n    \"termMonths\": 12,\n    \"interestRate\": 12.50\n}"},
+				"url": {"raw": "{{base_url}}/api/credits", "host": ["{{base_url}}"], "path": ["api", "credits"]},
+				"description": "Solicita un crédito personal de S/1,000 por 12 meses al 12.50% de interés anual. El sistema aplica scoring automático para evaluar la elegibilidad del cliente.\n\n**Endpoint:** POST /api/credits\n**Body:** customerId, type: PERSONAL, amount: 1000.0, termMonths: 12, interestRate: 12.50\n**Respuesta esperada:** Status 201 Created con creditId\n**Importancia:** El creditId se usa en SET-12 (Credits Advanced) para pagos, reestructuración y cronograma."
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });", "pm.test(\"Response has creditId\", function () { var jsonData = pm.response.json(); pm.expect(jsonData).to.have.property(\"creditId\"); pm.collectionVariables.set(\"credit_id\", jsonData.creditId); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-05-03: Crédito inexistente - Negative",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/credits/000000000000000000000000", "host": ["{{base_url}}"], "path": ["api", "credits", "000000000000000000000000"]},
+				"description": "Intenta consultar un crédito con un ID que no existe. Debe retornar 404.\n\n**Endpoint:** GET /api/credits/000000000000000000000000\n**Respuesta esperada:** Status 404 Not Found"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		}
+	]
+}

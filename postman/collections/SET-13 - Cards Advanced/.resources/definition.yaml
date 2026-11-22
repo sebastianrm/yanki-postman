@@ -1,0 +1,37 @@
+$kind: collection
+name: SET-13 - Cards Advanced
+description: |-
+  Operaciones avanzadas de tarjetas.
+  
+  **Naturaleza:** Pruebas avanzadas del ciclo de tarjetas: límite disponible, consumos no encontrados y reembolsos.
+  
+  **Objetivo:** Validar consulta de límite de crédito, manejo de consumos inexistentes y reembolsos fallidos.
+  
+  **Orden de ejecución:** Después de SET-04 (Cards), ya que requiere un card_id válido.
+  
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-13)
+  - Documentación: `pruebas_integrales/SET-13-CARDS-ADVANCED.md`
+  - Casos de prueba: CP-101, CP-199, CP-201
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+    type: string
+  - key: auth_token
+    value: ''
+    type: string
+  - key: customer_id
+    value: ''
+    type: string
+  - key: account_id
+    value: ''
+    type: string
+  - key: card_id
+    value: ''
+    type: string
+  - key: credit_id
+    value: ''
+    type: string
+  - key: wallet_id
+    value: ''
+    type: string

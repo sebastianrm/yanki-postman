@@ -1,0 +1,15 @@
+$kind: http-request
+name: 'PRUEBA-10-05: Reporte movimientos tarjeta - Happy Path'
+order: 5000
+method: GET
+url: '{{base_url}}/api/reports/movements/cards/{{card_id}}?limit=10'
+queryParams:
+  - key: limit
+    value: '10'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'

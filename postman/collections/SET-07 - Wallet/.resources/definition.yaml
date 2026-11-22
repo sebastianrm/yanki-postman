@@ -1,0 +1,37 @@
+$kind: collection
+name: SET-07 - Wallet
+description: |-
+  Monedero móvil Yanki (wallet digital).
+  
+  **Naturaleza:** Pruebas básicas del ciclo de wallet: listado, creación de wallet digital y consulta de wallet inexistente.
+  
+  **Objetivo:** Validar que el wallet-service permite crear wallets vinculados a un dispositivo (IMEI, teléfono), y que los wallets inexistentes retornan 404.
+  
+  **Orden de ejecución:** Después de SET-02 (Customers), ya que requiere datos del cliente.
+  
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-07)
+  - Documentación: `pruebas_integrales/SET-07-WALLET.md`
+  - Casos de prueba: CP-140 a CP-148
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+    type: string
+  - key: auth_token
+    value: ''
+    type: string
+  - key: customer_id
+    value: ''
+    type: string
+  - key: account_id
+    value: ''
+    type: string
+  - key: card_id
+    value: ''
+    type: string
+  - key: credit_id
+    value: ''
+    type: string
+  - key: wallet_id
+    value: ''
+    type: string

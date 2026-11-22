@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PRUEBA-13-02: Consumo no encontrado - Negative'
+order: 2000
+method: GET
+url: '{{base_url}}/api/cards/{{card_id}}/consumptions/000000000000000000000000'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 404", function () { pm.response.to.have.status(404); });'

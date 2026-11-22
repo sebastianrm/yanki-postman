@@ -1,0 +1,31 @@
+$kind: http-request
+name: "PRUEBA-03-03: Depósito - Happy Path"
+description: |-
+  Realiza un depósito de S/500.00 en la cuenta de ahorro. El depósito incrementa el saldo disponible y genera un movimiento contable.
+
+  **Endpoint:** POST /api/accounts/{id}/deposits
+  **Body:** amount: 500.0, description, channel: WEB
+  **Respuesta esperada:** Status 200 o 201 con confirmación del depósito
+  **Importancia:** Operación financiera básica — valida que el saldo se actualiza correctamente.
+  **Nota:** Requiere account_id poblado (ejecutar PRUEBA-03-02 primero).
+url: "{{base_url}}/api/accounts/{{account_id}}/deposits"
+method: POST
+headers:
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "amount": 500.0,
+        "description": "Deposito de prueba",
+        "channel": "WEB"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 or 201", function () {
+          pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+    language: text/javascript
+order: 3000

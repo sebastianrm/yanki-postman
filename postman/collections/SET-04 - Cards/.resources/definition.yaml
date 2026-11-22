@@ -1,0 +1,45 @@
+$kind: collection
+name: SET-04 - Cards
+description: |-
+  Gestión de tarjetas de crédito y débito de la plataforma Yanki.
+  
+  **Naturaleza:** Pruebas básicas del ciclo de tarjetas: listado por cliente, emisión de tarjetas y consulta de tarjeta inexistente.
+  
+  **Objetivo:** Validar que el cards-service permite emitir tarjetas vinculadas a un cliente, con límite de crédito configurable, y que las tarjetas inexistentes retornan 404.
+  
+  **Orden de ejecución:** Después de SET-02 (Customers), ya que requiere un customer_id válido.
+  
+  **Tipos de tarjeta:**
+  - CREDIT: Tarjeta de crédito (con límite y facturación)
+  - DEBIT: Tarjeta de débito (vinculada a cuenta bancaria)
+  
+  **Subtipos:**
+  - PERSONAL: Tarjeta individual
+  - ENTERPRISE: Tarjeta empresarial
+  
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-04)
+  - Documentación: `pruebas_integrales/SET-04-CARDS.md`
+  - Casos de prueba: CP-066 a CP-075
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+    type: string
+  - key: auth_token
+    value: ''
+    type: string
+  - key: customer_id
+    value: ''
+    type: string
+  - key: account_id
+    value: ''
+    type: string
+  - key: card_id
+    value: ''
+    type: string
+  - key: credit_id
+    value: ''
+    type: string
+  - key: wallet_id
+    value: ''
+    type: string

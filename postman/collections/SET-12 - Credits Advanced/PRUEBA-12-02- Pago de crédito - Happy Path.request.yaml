@@ -1,0 +1,21 @@
+$kind: http-request
+name: 'PRUEBA-12-02: Pago de crédito - Happy Path'
+order: 2000
+method: POST
+url: '{{base_url}}/api/credits/{{credit_id}}/payments'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+        "amount": 500.0,
+        "description": "Pago de cuota"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 200 or 201", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });'

@@ -1,0 +1,37 @@
+$kind: collection
+name: SET-12 - Credits Advanced
+description: |-
+  Operaciones avanzadas de créditos.
+  
+  **Naturaleza:** Pruebas avanzadas del ciclo de créditos: consulta por ID, pagos, reestructuración, cancelación, cronograma de pagos e historial.
+  
+  **Objetivo:** Validar todas las operaciones post-creación de un crédito: pagos parciales, reestructuración de tasa, cancelación, consulta de cronograma e historial de pagos.
+  
+  **Orden de ejecución:** Después de SET-05 (Credits), ya que requiere un credit_id válido.
+  
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-12)
+  - Documentación: `pruebas_integrales/SET-12-CREDITS-ADVANCED.md`
+  - Casos de prueba: CP-078 a CP-195
+variables:
+  - key: base_url
+    value: 'http://localhost:8080'
+    type: string
+  - key: auth_token
+    value: ''
+    type: string
+  - key: customer_id
+    value: ''
+    type: string
+  - key: account_id
+    value: ''
+    type: string
+  - key: card_id
+    value: ''
+    type: string
+  - key: credit_id
+    value: ''
+    type: string
+  - key: wallet_id
+    value: ''
+    type: string

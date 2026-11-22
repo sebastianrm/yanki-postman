@@ -1,0 +1,108 @@
+{
+	"info": {
+		"_postman_id": "8a001001-0001-0010-0000-000000000010",
+		"name": "SET-10 - Reports",
+		"description": "Reportes bancarios agregados de la plataforma Yanki.\n\n**Naturaleza:** Pruebas de generación de reportes: agregados por tipo de producto, vista 360° del cliente, movimientos de tarjetas y validación de parámetros.\n\n**Objetivo:** Validar que el reports-service genera correctamente reportes consolidados que agregan datos de múltiples microservicios (CQRS read-only).\n\n**Orden de ejecución:** Después de SET-02 a SET-07, ya que los reportes agregan datos de clientes, cuentas, tarjetas, créditos y transferencias.\n\n**Tipos de reporte:**\n- Aggregated: Resumen por tipo de producto (ACCOUNT, CREDIT, CARD, etc.)\n- Products: Resumen de todos los productos\n- Customer 360°: Vista integral de un cliente\n- Movements: Movimientos de tarjetas\n\n**Referencias:**\n- Script: `pruebas_integrales/run-tests.ps1` (SET-10)\n- Documentación: `pruebas_integrales/SET-10-REPORTS.md`\n- Casos de prueba: CP-123 a CP-125",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"variable": [
+			{"key": "base_url", "value": "http://localhost:8080", "type": "string"},
+			{"key": "auth_token", "value": "", "type": "string"},
+			{"key": "customer_id", "value": "", "type": "string"},
+			{"key": "account_id", "value": "", "type": "string"},
+			{"key": "card_id", "value": "", "type": "string"},
+			{"key": "credit_id", "value": "", "type": "string"},
+			{"key": "wallet_id", "value": "", "type": "string"}
+		]
+	},
+	"item": [
+		{
+			"name": "PRUEBA-10-01: Reporte agregado - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/reports/aggregated?type=ACCOUNT&from=2024-01-01&to=2024-12-31", "host": ["{{base_url}}"], "path": ["api", "reports", "aggregated"], "query": [
+					{"key": "type", "value": "ACCOUNT"},
+					{"key": "from", "value": "2024-01-01"},
+					{"key": "to", "value": "2024-12-31"}
+				]},
+				"description": "Genera un reporte agregado de cuentas para el período 2024. Agrega datos de todos los microservicios relacionados con cuentas.\n\n**Endpoint:** GET /api/reports/aggregated?type=ACCOUNT&from=2024-01-01&to=2024-12-31\n**Respuesta esperada:** Status 200 con datos agregados de cuentas"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-10-02: Reporte productos - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/reports/products?from=2024-01-01&to=2024-12-31", "host": ["{{base_url}}"], "path": ["api", "reports", "products"], "query": [
+					{"key": "from", "value": "2024-01-01"},
+					{"key": "to", "value": "2024-12-31"}
+				]},
+				"description": "Genera un reporte de todos los productos bancarios (cuentas, créditos, tarjetas) para el período especificado.\n\n**Endpoint:** GET /api/reports/products?from=2024-01-01&to=2024-12-31\n**Respuesta esperada:** Status 200 con resumen de productos"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-10-03: Reporte cliente 360° - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/reports/customer-360/{{customer_id}}", "host": ["{{base_url}}"], "path": ["api", "reports", "customer-360", "{{customer_id}}"]},
+				"description": "Genera una vista 360° integral de un cliente: cuentas, tarjetas, créditos, transferencias y wallet en un solo reporte.\n\n**Endpoint:** GET /api/reports/customer-360/{id}\n**Respuesta esperada:** Status 200 con vista completa del cliente\n**Importancia:** Reporte más completo — agrega datos de todos los microservicios."
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-10-04: Reporte fechas inválidas - Negative",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/reports/aggregated?type=ACCOUNT&from=2024-12-31&to=2024-01-01", "host": ["{{base_url}}"], "path": ["api", "reports", "aggregated"], "query": [
+					{"key": "type", "value": "ACCOUNT"},
+					{"key": "from", "value": "2024-12-31"},
+					{"key": "to", "value": "2024-01-01"}
+				]},
+				"description": "Intenta generar un reporte con fechas invertidas (from > to). El sistema debe validar el rango de fechas y rechazar.\n\n**Endpoint:** GET /api/reports/aggregated?type=ACCOUNT&from=2024-12-31&to=2024-01-01\n**Respuesta esperada:** Status 400 o 422 — fechas inválidas"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 400 or 422\", function () { pm.expect(pm.response.code).to.be.oneOf([400, 422]); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-10-05: Reporte movimientos tarjeta - Happy Path",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/reports/movements/cards/{{card_id}}?limit=10", "host": ["{{base_url}}"], "path": ["api", "reports", "movements", "cards", "{{card_id}}"], "query": [{"key": "limit", "value": "10"}]},
+				"description": "Genera un reporte de los últimos 10 movimientos de una tarjeta específica.\n\n**Endpoint:** GET /api/reports/movements/cards/{id}?limit=10\n**Respuesta esperada:** Status 200 con lista de movimientos"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		},
+		{
+			"name": "PRUEBA-10-06: Reporte sin parámetros obligatorios - Negative",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "Authorization", "value": "Bearer {{auth_token}}", "type": "text"}],
+				"url": {"raw": "{{base_url}}/api/reports/aggregated", "host": ["{{base_url}}"], "path": ["api", "reports", "aggregated"]},
+				"description": "Intenta generar un reporte agregado sin los parámetros obligatorios (type, from, to). El sistema debe rechazar.\n\n**Endpoint:** GET /api/reports/aggregated (sin query params)\n**Respuesta esperada:** Status 400 — parámetros faltantes"
+			},
+			"event": [
+				{"listen": "test", "script": {"exec": ["pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });"], "type": "text/javascript"}}
+			],
+			"response": []
+		}
+	]
+}

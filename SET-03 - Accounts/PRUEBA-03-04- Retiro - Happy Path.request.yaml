@@ -1,0 +1,31 @@
+$kind: http-request
+name: "PRUEBA-03-04: Retiro - Happy Path"
+description: |-
+  Realiza un retiro de S/100.00 de la cuenta de ahorro. El retiro decrementa el saldo disponible y genera un movimiento contable.
+
+  **Endpoint:** POST /api/accounts/{id}/withdrawals
+  **Body:** amount: 100.0, description, channel: WEB
+  **Respuesta esperada:** Status 200 o 201 con confirmación del retiro
+  **Importancia:** Operación financiera básica — valida que el saldo se decrementa correctamente.
+  **Nota:** El monto debe ser menor o igual al saldo disponible.
+url: "{{base_url}}/api/accounts/{{account_id}}/withdrawals"
+method: POST
+headers:
+  Authorization: Bearer {{auth_token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "amount": 100.0,
+        "description": "Retiro de prueba",
+        "channel": "WEB"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status code is 200 or 201", function () {
+          pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+    language: text/javascript
+order: 4000

@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PRUEBA-15-01: Wallet verificación - Happy Path'
+order: 1000
+method: GET
+url: '{{base_url}}/api/wallets/{{wallet_id}}'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'

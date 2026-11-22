@@ -1,0 +1,18 @@
+$kind: collection
+description: |-
+  CRUD de clientes personales y empresariales de la plataforma Yanki.
+
+  **Naturaleza:** Pruebas del ciclo completo de gestión de clientes: creación, consulta por ID, listado paginado, detección de duplicados y validación de campos obligatorios.
+
+  **Objetivo:** Validar que el customers-service permite crear clientes con perfiles STANDARD, VIP y PYME, que los duplicados por documento son rechazados con 409, y que los campos obligatorios son validados.
+
+  **Orden de ejecución:** Después de SET-01 (Autenticación), ya que requiere el token JWT.
+
+  **Tipos de cliente:**
+  - PERSONAL: Cliente individual (STANDARD o VIP)
+  - ENTERPRISE: Empresa (PYME)
+
+  **Referencias:**
+  - Script: `pruebas_integrales/run-tests.ps1` (SET-02)
+  - Documentación: `pruebas_integrales/SET-02-CUSTOMERS.md`
+  - Casos de prueba: CP-007 a CP-015

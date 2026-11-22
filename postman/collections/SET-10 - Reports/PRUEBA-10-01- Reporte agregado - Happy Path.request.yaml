@@ -1,0 +1,19 @@
+$kind: http-request
+name: 'PRUEBA-10-01: Reporte agregado - Happy Path'
+order: 1000
+method: GET
+url: '{{base_url}}/api/reports/aggregated?type=ACCOUNT&from=2024-01-01&to=2024-12-31'
+queryParams:
+  - key: type
+    value: ACCOUNT
+  - key: from
+    value: 2024-01-01
+  - key: to
+    value: 2024-12-31
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'

@@ -1,0 +1,12 @@
+$kind: http-request
+name: 'PRUEBA-11-07: Consulta cliente por ID - Happy Path'
+order: 7000
+method: GET
+url: '{{base_url}}/api/customers/{{customer_id}}'
+headers:
+  - key: Authorization
+    value: 'Bearer {{auth_token}}'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 200", function () { pm.response.to.have.status(200); });'

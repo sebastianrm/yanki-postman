@@ -1,0 +1,9 @@
+$kind: http-request
+name: 'PRUEBA-09-02: Método no permitido - Negative'
+order: 2000
+method: DELETE
+url: '{{base_url}}/api/auth/login'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: 'pm.test("Status code is 405", function () { pm.response.to.have.status(405); });'

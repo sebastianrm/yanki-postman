@@ -1,0 +1,11 @@
+$kind: http-request
+name: "PRUEBA-08-04: Config Server"
+description: |-
+  Verifica que el Config Server (Spring Cloud Config) está distribuyendo correctamente la configuración centralizada desde el repositorio Git. Se consulta la configuración del accounts-service como ejemplo representativo.
+
+  **Endpoint:** GET /{application}/{profile}
+  **Respuesta esperada:** Status 200 con propiedades YAML/JSON de configuración
+  **Importancia:** Sin config-server, los microservicios no tendrían acceso a configuración de MongoDB, Kafka, Redis, JWT, etc.
+url: "{{config_url}}/accounts-service/default"
+method: GET
+order: 4000
