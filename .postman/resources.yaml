@@ -7,13 +7,37 @@ localResources:
     - ../postman/collections/SET-01 - Autenticación
     - ../postman/collections/SET-02 - Customers
     - ../postman/collections/SET-03 - Accounts
+    - ../postman/collections/SET-04 - Cards
+    - ../postman/collections/SET-05 - Credits
+    - ../postman/collections/SET-06 - Transfers
+    - ../postman/collections/SET-07 - Wallet
     - ../postman/collections/SET-08 - Infraestructura
+    - ../postman/collections/SET-09 - Errores Globales
+    - ../postman/collections/SET-10 - Reports
+    - ../postman/collections/SET-11 - VIP-PYME
+    - ../postman/collections/SET-12 - Credits Advanced
+    - ../postman/collections/SET-13 - Cards Advanced
+    - ../postman/collections/SET-14 - Transfers Advanced
+    - ../postman/collections/SET-15 - Wallet E2E
+    - ../postman/collections/SET-16 - Auth Advanced
 
 # Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
 
 cloudResources:
   collections:
     ../postman/collections/SET-01 - Autenticación: 8a001001-0001-0001-0000-000000000001
-    ../SET-02 - Customers: 8a001001-0001-0002-0000-000000000002
+    ../postman/collections/SET-02 - Customers: 8a001001-0001-0002-0000-000000000002
     ../postman/collections/SET-03 - Accounts: 8a001001-0001-0003-0000-000000000003
+    ../postman/collections/SET-04 - Cards: 8a001001-0001-0004-0000-000000000004
+    ../postman/collections/SET-05 - Credits: 8a001001-0001-0005-0000-000000000005
+    ../postman/collections/SET-06 - Transfers: 8a001001-0001-0006-0000-000000000006
+    ../postman/collections/SET-07 - Wallet: 8a001001-0001-0007-0000-000000000007
     ../postman/collections/SET-08 - Infraestructura: 8a001001-0001-0008-0000-000000000008
+    ../postman/collections/SET-09 - Errores Globales: 8a001001-0001-0009-0000-000000000009
+    ../postman/collections/SET-10 - Reports: 8a001001-0001-0010-0000-000000000010
+    ../postman/collections/SET-11 - VIP-PYME: 8a001001-0001-0011-0000-000000000011
+    ../postman/collections/SET-12 - Credits Advanced: 8a001001-0001-0012-0000-000000000012
+    ../postman/collections/SET-13 - Cards Advanced: 8a001001-0001-0013-0000-000000000013
+    ../postman/collections/SET-14 - Transfers Advanced: 8a001001-0001-0014-0000-000000000014
+    ../postman/collections/SET-15 - Wallet E2E: 8a001001-0001-0015-0000-000000000015
+    ../postman/collections/SET-16 - Auth Advanced: 8a001001-0001-0016-0000-000000000016
