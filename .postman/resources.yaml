@@ -4,16 +4,16 @@ workspace:
 
 localResources:
   collections:
-    - ../SET-01 - Autenticación
-    - ../SET-02 - Customers
-    - ../SET-03 - Accounts
-    - ../SET-08 - Infraestructura
+    - ../postman/collections/SET-01 - Autenticación
+    - ../postman/collections/SET-02 - Customers
+    - ../postman/collections/SET-03 - Accounts
+    - ../postman/collections/SET-08 - Infraestructura
 
 # Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
 
 cloudResources:
   collections:
-    ../SET-01 - Autenticación: 8a001001-0001-0001-0000-000000000001
+    ../postman/collections/SET-01 - Autenticación: 8a001001-0001-0001-0000-000000000001
     ../SET-02 - Customers: 8a001001-0001-0002-0000-000000000002
-    ../SET-03 - Accounts: 8a001001-0001-0003-0000-000000000003
-    ../SET-08 - Infraestructura: 8a001001-0001-0008-0000-000000000008
+    ../postman/collections/SET-03 - Accounts: 8a001001-0001-0003-0000-000000000003
+    ../postman/collections/SET-08 - Infraestructura: 8a001001-0001-0008-0000-000000000008
